@@ -11,9 +11,77 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     
     <!-- Link to external Data file -->
-    <script>
+    <!-- Fullscreen Notes Editor -->
+<div id="notesFullscreenModal" style="display:none; position:fixed; inset:0; z-index:9998; background:#f8fafc; flex-direction:column;">
+    <div style="position:sticky; top:0; background:rgba(248,250,252,0.97); backdrop-filter:blur(12px); padding:14px 20px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; z-index:10;">
+        <button id="notesBackBtn" style="background:none; border:none; color:var(--primary); font-weight:800; font-size:0.9rem; cursor:pointer; font-family:'Inter',sans-serif; display:flex; align-items:center; gap:5px; padding:0;">
+            <i class="ph-bold ph-arrow-left"></i> Back
+        </button>
+        <div style="font-family:'Outfit',sans-serif; font-weight:800; font-size:1rem; color:#1e293b; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+            <i class="ph-fill ph-note-pencil" style="color:#f59e0b;"></i> Notes
+        </div>
+        <button id="notesSaveBtn" style="background:#6366f1; color:white; border:none; border-radius:20px; padding:8px 16px; font-weight:800; font-size:0.82rem; cursor:pointer; font-family:'Inter',sans-serif; display:flex; align-items:center; gap:5px;">
+            <i class="ph-bold ph-floppy-disk"></i> Save
+        </button>
+    </div>
+    <textarea id="notesFullArea" placeholder="Type your notes here…"
+        style="flex:1; width:100%; border:none; padding:20px; font-size:1rem; font-family:'Inter',sans-serif; line-height:1.7; color:#1e293b; background:#f8fafc; outline:none; resize:none; box-sizing:border-box;"
+    ></textarea>
+    <div id="notesSavedToast" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#1e293b; color:white; padding:10px 24px; border-radius:30px; font-size:0.85rem; font-weight:700; font-family:'Inter',sans-serif; box-shadow:0 4px 20px rgba(0,0,0,0.2); z-index:11;">
+        <i class="ph-fill ph-check-circle" style="color:#34d399;"></i> Notes saved
+    </div>
+</div>
+
+<!-- In-App PDF Viewer -->
+<div id="pdfViewerModal" style="display:none; position:fixed; inset:0; z-index:10000; background:#1e1e2e; flex-direction:column;">
+    <!-- Header -->
+    <div style="background:#0f0f1a; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-shrink:0;">
+        <button id="pdfViewerClose" style="background:rgba(255,255,255,0.1); border:none; color:white; border-radius:50%; width:38px; height:38px; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i class="ph-bold ph-x"></i>
+        </button>
+        <div id="pdfViewerName" style="color:white; font-weight:700; font-size:0.9rem; font-family:'Inter',sans-serif; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center;"></div>
+        <button id="pdfViewerDownload" style="background:rgba(99,102,241,0.3); border:1px solid rgba(99,102,241,0.5); color:#a5b4fc; border-radius:10px; padding:8px 14px; font-size:0.8rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; flex-shrink:0; display:flex; align-items:center; gap:5px;">
+            <i class="ph-bold ph-download-simple"></i> Save
+        </button>
+    </div>
+    <!-- PDF iframe -->
+    <iframe id="pdfViewerFrame" style="flex:1; width:100%; border:none; background:white;" src="about:blank"></iframe>
+    <!-- Fallback for browsers that cant display PDFs inline -->
+    <div id="pdfViewerFallback" style="display:none; flex:1; align-items:center; justify-content:center; flex-direction:column; gap:16px; padding:30px; text-align:center;">
+        <i class="ph-fill ph-file-pdf" style="font-size:4rem; color:#fca5a5;"></i>
+        <div style="color:white; font-size:1rem; font-weight:700; font-family:'Inter',sans-serif;" id="pdfFallbackName"></div>
+        <div style="color:#94a3b8; font-size:0.85rem; font-family:'Inter',sans-serif;">Your browser could not display the PDF inline.</div>
+        <button id="pdfFallbackDownload" style="background:#6366f1; color:white; border:none; border-radius:12px; padding:14px 28px; font-size:0.95rem; font-weight:800; cursor:pointer; font-family:'Inter',sans-serif; display:flex; align-items:center; gap:8px;">
+            <i class="ph-bold ph-download-simple"></i> Download PDF
+        </button>
+    </div>
+</div>
+
+<!-- QR Scanner Modal -->
+<div id="qrScannerModal" style="display:none; position:fixed; inset:0; z-index:9999; background:#000;">
+    <div style="position:absolute; top:0; left:0; right:0; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; z-index:10001; background:linear-gradient(180deg,rgba(0,0,0,0.7),transparent);">
+        <div style="color:white; font-family:'Outfit',sans-serif; font-weight:800; font-size:1.1rem; display:flex; align-items:center; gap:8px;">
+            <i class="ph-fill ph-qr-code"></i> QR & Barcode Scanner
+        </div>
+        <button onclick="closeQRScanner()" style="background:rgba(255,255,255,0.15); border:none; color:white; border-radius:50%; width:40px; height:40px; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+            <i class="ph-bold ph-x"></i>
+        </button>
+    </div>
+    <div id="qrReader" style="width:100%; height:100%;"></div>
+    <div id="qrResultBanner" style="display:none; position:absolute; bottom:0; left:0; right:0; background:linear-gradient(0deg,rgba(0,0,0,0.9),rgba(0,0,0,0.7)); padding:20px; z-index:10001;">
+        <div style="color:#a5b4fc; font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;"><i class="ph-fill ph-check-circle"></i> Scanned</div>
+        <div id="qrResultText" style="color:white; font-size:1.1rem; font-weight:700; font-family:'Outfit',sans-serif; word-break:break-all;"></div>
+        <div style="display:flex; gap:10px; margin-top:14px;">
+            <button onclick="qrLookupPart()" style="flex:1; background:#6366f1; color:white; border:none; border-radius:12px; padding:12px; font-weight:800; font-size:0.9rem; cursor:pointer; font-family:'Inter',sans-serif;"><i class="ph-bold ph-magnifying-glass"></i> Look Up</button>
+            <button onclick="qrCopyAndClose()" style="flex:1; background:rgba(255,255,255,0.12); color:white; border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:12px; font-weight:800; font-size:0.9rem; cursor:pointer; font-family:'Inter',sans-serif;"><i class="ph-bold ph-copy"></i> Copy</button>
+        </div>
+    </div>
+</div>
+
+<script>
 const db_parts = [{"PartID": "137661", "Description": "Switch Micro Door Closed & Leading Edge", "Location": "602-003", "Stock": 1}, {"PartID": "137685", "Description": "Sensor Photo-Elec P/W", "Location": "602-002", "Stock": 1}, {"PartID": "137707", "Description": "Trap Air & Steam 15mm Brass", "Location": "602-019", "Stock": 2}, {"PartID": "136072", "Description": "Ribbon Cartridge Centenary Sterilizer Innova M4 M5 M5ISO Dragon", "Location": "602-013", "Stock": 2}, {"PartID": "136098", "Description": "Nut Lock S/S 3/8 Bsw.", "Location": "602-018", "Stock": 4}, {"PartID": "137047", "Description": "Valve Float 3/8 with 3\" PVC Hot Water Ball (White)", "Location": "602-011", "Stock": 1}, {"PartID": "137435", "Description": "Valve Pressure Control Brass 1\"", "Location": "602-030", "Stock": 1}, {"PartID": "137491", "Description": "Valve Ball 1\" S/S for Motorized Valve", "Location": "602-009", "Stock": 1}, {"PartID": "135907", "Description": "Transducer Pressure Wika S/S", "Location": "602-060", "Stock": 1}, {"PartID": "135935", "Description": "Socket Contact Female 66101-2", "Location": "602-026", "Stock": 58}, {"PartID": "135936", "Description": "Pin Contact Male 66099-2", "Location": "602-026", "Stock": 35}, {"PartID": "135947", "Description": "Transmitter Rtd Type", "Location": "602-004", "Stock": 2}, {"PartID": "133480", "Description": "Switch Pressure Asco Hc20A224", "Location": "602-027", "Stock": 0}, {"PartID": "133482", "Description": "Switch Pressure Auto Door", "Location": "602-027", "Stock": 1}, {"PartID": "133561", "Description": "Bush Reducing Brass 1 X 3/4", "Location": "602-022", "Stock": 1}, {"PartID": "133628", "Description": "Piston BR 1/2 Ball Float Valve", "Location": "602-011", "Stock": 1}, {"PartID": "134560", "Description": "Cover M/Switch PVC", "Location": "602-003", "Stock": 8}, {"PartID": "134752", "Description": "Thermocouple Tm Et 310K", "Location": "602-025", "Stock": 1}, {"PartID": "134849", "Description": "Valve Float Watermark 1/2 with 4\" PVC Cold Water Ball (Black)", "Location": "602-011", "Stock": 1}, {"PartID": "134877", "Description": "Thermostat E.G.O. 30 - 110 deg C", "Location": "602-001", "Stock": 1}, {"PartID": "135005", "Description": "Fan Compact Axial Controls", "Location": "602-014", "Stock": 1}, {"PartID": "135122", "Description": "Actuator Zaq-2 Auxillary", "Location": "602-003", "Stock": 2}, {"PartID": "135766", "Description": "Gasket For Mobrey Float Contro", "Location": "602-029", "Stock": 0}, {"PartID": "133241", "Description": "Valve Ball S/S 1/2\" Suitable For Steam", "Location": "602-028", "Stock": 1}, {"PartID": "133242", "Description": "Valve Ball 3/4 Suitable For Steam 2 piece", "Location": "602-028", "Stock": 1}, {"PartID": "24458", "Description": "Wheel Carriage Lassie", "Location": "602-017", "Stock": 4}, {"PartID": "130609", "Description": "Union Brass 3/4 M X 1 C", "Location": "602-022", "Stock": 1}, {"PartID": "130611", "Description": "Union Brass 3/4 F X 3/4 C", "Location": "602-022", "Stock": 1}, {"PartID": "130613", "Description": "Union Brass 3/4 M X 3/4 C", "Location": "602-022", "Stock": 1}, {"PartID": "130617", "Description": "Union Brass 1/2 M X 3/4 C", "Location": "602-022", "Stock": 4}, {"PartID": "130619", "Description": "Union Brass 1/2 F X 1/2 C", "Location": "602-022", "Stock": 2}, {"PartID": "130621", "Description": "Union Brass 1/2 M X 1/2 C", "Location": "602-022", "Stock": 4}, {"PartID": "130639", "Description": "Elbow Brass 1 M X 1 C", "Location": "602-022", "Stock": 1}, {"PartID": "130651", "Description": "Elbow Brass 1/2 M X 3/4 C", "Location": "602-022", "Stock": 1}, {"PartID": "130655", "Description": "Elbow Brass 1/2 M X 1/2 C", "Location": "602-022", "Stock": 2}, {"PartID": "130656", "Description": "Elbow Brass 1/2 F X 1/2 C", "Location": "602-022", "Stock": 3}, {"PartID": "130671", "Description": "Nipple Brass Reducing 1/2 X 3/8", "Location": "602-022", "Stock": 2}, {"PartID": "130686", "Description": "Socket Brass Hex 3/4 BSP", "Location": "602-022", "Stock": 1}, {"PartID": "130716", "Description": "Tee Brass 3/4 Fi", "Location": "602-022", "Stock": 1}, {"PartID": "130793", "Description": "Bush Reducing Brass 3/8 X 1/8", "Location": "602-022", "Stock": 3}, {"PartID": "130930", "Description": "Tee Brass 1/4 C X 1/4 C X 1/4 C Petrol", "Location": "602-022", "Stock": 1}, {"PartID": "131123", "Description": "Strainer Steam 1/2\" S/S Y Type", "Location": "602-060", "Stock": 1}, {"PartID": "131282", "Description": "Anode Magnesium S/G", "Location": "602-016", "Stock": 2}, {"PartID": "131615", "Description": "Gauge Compound 80mm Dia 100-0-500", "Location": "602-008", "Stock": 1}, {"PartID": "131775", "Description": "Valve Solenoid Steam 3/8", "Location": "602-020", "Stock": 2}, {"PartID": "131980", "Description": "Gasket Door Manual Blue N.393-Se1057", "Location": "602-024", "Stock": 6}, {"PartID": "132016", "Description": "Switch Micro Burgess Crimr Long (OBS - Use 137467)", "Location": "602-003", "Stock": 4}, {"PartID": "132168", "Description": "Valve Solenoid Steam 3/4 - individually boxed", "Location": "602-019", "Stock": 3}, {"PartID": "132175", "Description": "Filter Air Domnick Hunter Zgpb.01V", "Location": "602-016", "Stock": 2}, {"PartID": "132202", "Description": "Relay 2 Contact 240 Volt 2-13R", "Location": "602-003", "Stock": 2}, {"PartID": "132217", "Description": "Base Relay 2-13R 2C", "Location": "602-003", "Stock": 2}, {"PartID": "132220", "Description": "Fuse Holder Type Fc32Fw", "Location": "602-015", "Stock": 2}, {"PartID": "132222", "Description": "Fuse 10 Amp Hrc Cartridge", "Location": "602-015", "Stock": 5}, {"PartID": "130053", "Description": "Switch Micro SPDT 15A240V W Drip Cover", "Location": "602-003", "Stock": 7}, {"PartID": "130131", "Description": "Connector Bp1", "Location": "602-026", "Stock": 11}, {"PartID": "25260", "Description": "Label Button Board Rh No Laser", "Location": "602-006", "Stock": 2}, {"PartID": "25094", "Description": "PCB Button Board Lh L5 L6 L9 At1012L", "Location": "602-006", "Stock": 2}, {"PartID": "25095", "Description": "PCB Button Board Rh L5 L6 L9 At1012R", "Location": "602-006", "Stock": 2}, {"PartID": "25096", "Description": "PCB Button Board Spacer L5 L6 L9", "Location": "602-006", "Stock": 5}, {"PartID": "25097", "Description": "Label Button Board Lh L5 L6 L9", "Location": "602-006", "Stock": 5}, {"PartID": "25098", "Description": "Label Button Board Rh L5 L6 L9", "Location": "602-006", "Stock": 3}, {"PartID": "22249", "Description": "Gauge Compound Tangent ABS Panel", "Location": "602-008", "Stock": 1}, {"PartID": "22966", "Description": "Cable Leading Edge T9 Series", "Location": "602-018", "Stock": 1}, {"PartID": "11390", "Description": "Bush Reducing Brass 1/2X 3/8", "Location": "602-022", "Stock": 3}, {"PartID": "11915", "Description": "Gasket Steam Generator 305 Dia SG30-75", "Location": "602-024", "Stock": 1}, {"PartID": "22434", "Description": "Gasket Steam Generator T4", "Location": "602-029", "Stock": 2}, {"PartID": "22468", "Description": "Reducer 8Msl X 1/2Tube 8 Bore", "Location": "602-022", "Stock": 3}, {"PartID": "14163", "Description": "Element Panwasher 005 Model", "Location": "602-012", "Stock": 1}, {"PartID": "20835", "Description": "Wheel Carriage Recess 65mm", "Location": "602-017", "Stock": 4}, {"PartID": "22533", "Description": "Gasket Steam Generator T5 T6 & T9", "Location": "602-029", "Stock": 2}, {"PartID": "22033", "Description": "Seal Thermocouple Gland Fitting", "Location": "602-060", "Stock": 20}, {"PartID": "10057", "Description": "Nipple Brass Hex 1/2 BSP", "Location": "602-022", "Stock": 1}, {"PartID": "10231", "Description": "Strainer Chamber Sterilizer", "Location": "602-016", "Stock": 2}, {"PartID": "10240", "Description": "Nipple Brass Hex 3/4", "Location": "602-022", "Stock": 1}, {"PartID": "138896", "Description": "Filter Water Cartridge Softener Tangent", "Location": "602-026", "Stock": 3}, {"PartID": "138896", "Description": "Filter Water Cartridge Softener Tangent", "Location": "602-060", "Stock": 1}, {"PartID": "139378", "Description": "Tee Brass Branch 16mm Hose X 1/2 BSP", "Location": "602-060", "Stock": 2}, {"PartID": "139394", "Description": "PCB Drying Cabinet Triac", "Location": "602-060", "Stock": 1}, {"PartID": "139396", "Description": "Nut & Tail Brass 6mm Hose X 1/2 BSP", "Location": "602-060", "Stock": 1}, {"PartID": "139398", "Description": "Gasket Spray Nozzle Duck", "Location": "602-060", "Stock": 1}, {"PartID": "137888", "Description": "Sensor Proximity Door", "Location": "602-003", "Stock": 1}, {"PartID": "138927", "Description": "Thermocouple Lead Chamber", "Location": "602-025", "Stock": 2}, {"PartID": "138929", "Description": "Bolt Hex S/S M8 X 55mm Bumax 316 10.9", "Location": "602-029", "Stock": 16}, {"PartID": "139413", "Description": "Gasket Element Panwasher Duck Series", "Location": "602-011", "Stock": 0}, {"PartID": "138960", "Description": "Fuse 8 Amp Door Driver Tangent/Cyber", "Location": "602-001", "Stock": 4}, {"PartID": "139455", "Description": "Cable M12x4 A-Coded Sockets One End 2m", "Location": "602-003", "Stock": 4}, {"PartID": "138001", "Description": "Valve Pressure Control Brass 1/2\"", "Location": "602-030", "Stock": 1}, {"PartID": "139469", "Description": "Valve Motorized 1\" BSP S/S Ball 3-Way", "Location": "602-060", "Stock": 1}, {"PartID": "139474", "Description": "Solenoid Trolley Rail Lock", "Location": "602-006", "Stock": 2}, {"PartID": "139476", "Description": "Switch Micro Short Roller Lever Lassie", "Location": "602-006", "Stock": 5}, {"PartID": "139030", "Description": "Battery PLC CQ/CJ CPM2A-BAT01", "Location": "602-060", "Stock": 2}, {"PartID": "830327", "Description": "Tape Teflon Premium Pink 15Mr", "Location": "602-021", "Stock": 5}, {"PartID": "138444", "Description": "Valve Solenoid Steam 1/2 - individually boxed", "Location": "602-010", "Stock": 2}, {"PartID": "138449", "Description": "Valve Solenoid 1/4 Water Tangent", "Location": "602-010", "Stock": 1}, {"PartID": "139083", "Description": "Pump Steam Generator S/S", "Location": "602-009", "Stock": 1}, {"PartID": "138454", "Description": "Valve Solenoid 1/4 Steam Tangent", "Location": "602-010", "Stock": 1}, {"PartID": "138466", "Description": "Valve Check 3/8 Steam Tangent (139981)", "Location": "602-007", "Stock": 16}, {"PartID": "139126", "Description": "Filter Disposable Drying Cab", "Location": "602-014", "Stock": 7}, {"PartID": "139132", "Description": "Power Supply 5Vdc 6A 30W", "Location": "602-060", "Stock": 1}, {"PartID": "139135", "Description": "Tee S/S Branch 1/4 Sl X 1/4 M", "Location": "602-022", "Stock": 1}, {"PartID": "139610", "Description": "Loctite Nickle Anti Seize LB 771 450G", "Location": "602-001", "Stock": 1}, {"PartID": "138486", "Description": "Tube Pfa 1/4 Dia", "Location": "602-023", "Stock": 2}, {"PartID": "138487", "Description": "Tube Pfa 3/8 Dia", "Location": "602-023", "Stock": 0}, {"PartID": "138488", "Description": "Tube Pfa 1/2 Dia", "Location": "602-023", "Stock": 1}, {"PartID": "139141", "Description": "Union S/S 1/2 Sl X 1/4 M", "Location": "602-060", "Stock": 1}, {"PartID": "139143", "Description": "Connector Port S/S 1/2 X 1/2 Sl", "Location": "602-060", "Stock": 2}, {"PartID": "139145", "Description": "Union S/S 3/4 Sl X 1/2 F", "Location": "602-060", "Stock": 2}, {"PartID": "139146", "Description": "Tee S/S Running 1/2 Sl X 1/2 M", "Location": "602-060", "Stock": 1}, {"PartID": "139150", "Description": "Tee S/S 1/2 Sl", "Location": "602-022", "Stock": 1}, {"PartID": "139154", "Description": "Elbow S/S 1/4 Sl X 1/4 M", "Location": "602-022", "Stock": 2}, {"PartID": "139158", "Description": "Adapter S/S 1/2 Tube X 3/8 M", "Location": "602-022", "Stock": 1}, {"PartID": "138593", "Description": "Rtd 80 X 6 S/S Tangent Drain & Jacket", "Location": "602-004", "Stock": 1}, {"PartID": "139167", "Description": "Plug S/S 3/8 Hex Head", "Location": "602-022", "Stock": 4}, {"PartID": "139171", "Description": "Elbow S/S 3/4 Sl X 3/4 Sl", "Location": "602-022", "Stock": 4}, {"PartID": "830825", "Description": "Ferrule Brass 1/4 Hylok", "Location": "602-022", "Stock": 2}, {"PartID": "830826", "Description": "Ferrule Brass 3/8 Hylok", "Location": "602-022", "Stock": 20}, {"PartID": "830827", "Description": "Ferrule Brass 1/2 Hylok", "Location": "602-022", "Stock": 7}, {"PartID": "139198", "Description": "Fuse 2 Amp Glass 5 X 20", "Location": "602-003", "Stock": 5}, {"PartID": "139199", "Description": "Fuse Holder 5 X 20 Din Rail", "Location": "602-003", "Stock": 3}, {"PartID": "139678", "Description": "Valve Directly Operated Solenoid - N.C.", "Location": "602-027", "Stock": 2}, {"PartID": "139681", "Description": "Valve Pneumatic 1/2\" S/S Steam NC", "Location": "602-060", "Stock": 2}, {"PartID": "138674", "Description": "Thermostat Tangent Generator 50-320 Deg", "Location": "602-001", "Stock": 1}, {"PartID": "139715", "Description": "Valve Pneumatic 3/4\" S/S Steam NC", "Location": "602-022", "Stock": 1}, {"PartID": "139733", "Description": "Trap Air & Steam 15mm S/S", "Location": "602-060", "Stock": 3}, {"PartID": "139281", "Description": "Filter Water Cartridge Tangent", "Location": "602-026", "Stock": 1}, {"PartID": "139791", "Description": "Nipple S/S Hex 3/4", "Location": "602-022", "Stock": 2}, {"PartID": "139833", "Description": "Bolt Hex S/S M10 X 55mm Bumax 316 10.9", "Location": "602-029", "Stock": 8}, {"PartID": "139297", "Description": "Element P/W Duck", "Location": "602-060", "Stock": 0}, {"PartID": "139305", "Description": "Plug Solenoid", "Location": "602-019", "Stock": 22}, {"PartID": "139852", "Description": "Bush Reducing S/S 3/4 F X 2 M", "Location": "602-060", "Stock": 4}, {"PartID": "139853", "Description": "Union S/S 1/2 Sl X 3/4 M", "Location": "602-060", "Stock": 1}, {"PartID": "139854", "Description": "Tee S/S Running 3/4 M X 12mm Sl X 1/2 Sl", "Location": "602-060", "Stock": 2}, {"PartID": "139855", "Description": "Adapter S/S 3/4 Tube X 1/2 F", "Location": "602-022", "Stock": 2}, {"PartID": "830949", "Description": "Ferrule Brass 3/4 Hylok", "Location": "602-022", "Stock": 13}, {"PartID": "830956", "Description": "Ferrule Brass 1 Hylok", "Location": "602-060", "Stock": 8}, {"PartID": "830957", "Description": "Ferrule Teflon 1/4", "Location": "602-001", "Stock": 9}, {"PartID": "138798", "Description": "PLC Power Supply CJ1W-PA202", "Location": "602-060", "Stock": 1}, {"PartID": "139874", "Description": "Plug S/S 3/4 BSP Square Head", "Location": "602-022", "Stock": 4}, {"PartID": "139877", "Description": "Rtd 190 X 6 S/S Pt100 1/2 BSP 7M", "Location": "602-004", "Stock": 4}, {"PartID": "139884", "Description": "Plug S/S 1/4 Hylok", "Location": "602-022", "Stock": 4}, {"PartID": "139887", "Description": "Plug S/S 1/2 BSP Square Head", "Location": "602-022", "Stock": 4}, {"PartID": "137821", "Description": "Thermocouple K Type Probe", "Location": "602-004", "Stock": 1}, {"PartID": "137822", "Description": "Thermocouple K Ty Probe 3/8BSP", "Location": "602-004", "Stock": 2}, {"PartID": "138820", "Description": "Relay LY2N 240VAC DPDT 10A", "Location": "602-060", "Stock": 1}, {"PartID": "138838", "Description": "Union Brass 3/4 Sl X 3/4 M", "Location": "602-022", "Stock": 1}, {"PartID": "137872", "Description": "Switch Horizontal Float", "Location": "602-060", "Stock": 1}, {"PartID": "138853", "Description": "Tee Brass 3/4 Sl", "Location": "602-022", "Stock": 1}, {"PartID": "138873", "Description": "Valve Safety 1/2 Hero Tang 260", "Location": "602-007", "Stock": 1}, {"PartID": "BHT21970.00/9", "Description": "Hose Dosing Pump All Models", "Location": "602-009", "Stock": 3}, {"PartID": "BHT22078.00/9", "Description": "Valve Water Single", "Location": "602-020", "Stock": 1}, {"PartID": "GET025", "Description": "Gasket Door Ge 510/20", "Location": "602-060", "Stock": 2}, {"PartID": "GET027", "Description": "Gasket Door Ge 660 X 660", "Location": "602-060", "Stock": 1}, {"PartID": "BHT13523.17", "Description": "Battery For Microprocessor All Models", "Location": "602-060", "Stock": 1}, {"PartID": "140008", "Description": "Pump Vacuum X66 Tiger And Chipmunk", "Location": "602-060", "Stock": 0}, {"PartID": "140009", "Description": "Plug S/S 1/4 BSP Hex Head", "Location": "602-022", "Stock": 4}, {"PartID": "140012", "Description": "Valve Pneumatic 1/2\" S/S Steam NC Small", "Location": "602-023", "Stock": 1}, {"PartID": "139946", "Description": "Valve S/S Check 1/2 Tube", "Location": "602-022", "Stock": 1}, {"PartID": "139756", "Description": "Union S/S 1 Sl X 3/4 M", "Location": "602-060", "Stock": 1}, {"PartID": "139789", "Description": "Nipple S/S Hex 1/2 Bsp", "Location": "602-022", "Stock": 1}, {"PartID": "139948", "Description": "Valve Pneumatic 1\" S/S Steam NC", "Location": "602-060", "Stock": 1}, {"PartID": "139957", "Description": "Spring Gasket Door 55 Jerboa/Mongoose", "Location": "602-023", "Stock": 2}, {"PartID": "139958", "Description": "Spring Gasket Door 66 Chipmunk/Tiger", "Location": "602-023", "Stock": 4}, {"PartID": "139959", "Description": "Spring Gasket Door 96 Chinchilla/Gorilla", "Location": "602-023", "Stock": 3}, {"PartID": "139960", "Description": "Gasket Door Round 55 Jerboa/Mongoose", "Location": "602-023", "Stock": 2}, {"PartID": "139961", "Description": "Gasket Door Round 66 Chipmunk/Tiger", "Location": "602-023", "Stock": 6}, {"PartID": "139962", "Description": "Gasket Door Round 96 Chinchilla/Gorilla", "Location": "602-023", "Stock": 6}, {"PartID": "139759", "Description": "Union S/S 1/2Sl X 3/8M", "Location": "602-060", "Stock": 1}, {"PartID": "139775", "Description": "Adapter S/S 1/4 Tube X 1/4 M", "Location": "602-060", "Stock": 2}, {"PartID": "139976", "Description": "Spring Gasket A/Door 900 Series-93", "Location": "602-023", "Stock": 2}, {"PartID": "139980", "Description": "Gasket A/Door Round 900 Series-93", "Location": "602-023", "Stock": 1}, {"PartID": "140035", "Description": "Elbow Swivel M5 X 4 Dia Rapid Fitting", "Location": "602-027", "Stock": 5}, {"PartID": "140157", "Description": "Valve Solenoid Pilot Pneumatic N.C. Retrofit", "Location": "602-027", "Stock": 1}, {"PartID": "BHT20212.01", "Description": "Spring for Door with Glass M4", "Location": "602-060", "Stock": 2}, {"PartID": "DRAGON-011", "Description": "Large & Small Valve O-Ring", "Location": "602-060", "Stock": 2}, {"PartID": "140053", "Description": "Insert S/S 1/2 Tube", "Location": "602-001", "Stock": 4}, {"PartID": "BHT14088.00", "Description": "Front Glide Ledge (Straight)", "Location": "602-060", "Stock": 3}, {"PartID": "140167", "Description": "Kit Internal set for Trap Air & Steam S/S 15mm", "Location": "602-019", "Stock": 10}, {"PartID": "BHT29007.24", "Description": "Relay Phoenix Contact 24V, 1W, 6A MR- 24DC/21", "Location": "602-009", "Stock": 1}, {"PartID": "830972", "Description": "Ferrule S/S 1/2 Hylok", "Location": "602-060", "Stock": 10}, {"PartID": "830975", "Description": "Ferrule S/S 12mm Hylok for Generator Float", "Location": "602-022", "Stock": 20}, {"PartID": "BHT14116.40", "Description": "Water Flap M5/ISO", "Location": "602-060", "Stock": 1}, {"PartID": "BHT 14089.00", "Description": "Glide Ledge (Angled)", "Location": "602-060", "Stock": 6}, {"PartID": "140101", "Description": "Validation Lead T-Type", "Location": "602-060", "Stock": 3}, {"PartID": "140102", "Description": "Plug T-Type", "Location": "602-060", "Stock": 12}, {"PartID": "25840", "Description": "Washer Expanded Neoprene Sponge 14 OD x 3.5 ID", "Location": "602-006", "Stock": 4}, {"PartID": "140109", "Description": "Ball 4\" PVC Cold Water (Black) for p/n 134849", "Location": "602-011", "Stock": 1}, {"PartID": "25912", "Description": "Kit Retrofit Brass Upgrade P/W", "Location": "602-060", "Stock": 1}, {"PartID": "140181", "Description": "Battery PLC CJ2 CJ1W-BAT01", "Location": "602-060", "Stock": 1}, {"PartID": "BHT11962.63", "Description": "Cap for Jet Arm Series 5,4,3", "Location": "602-009", "Stock": 2}, {"PartID": "140258", "Description": "Plug S/S 1/2 Hylok", "Location": "602-022", "Stock": 4}, {"PartID": "140260", "Description": "Plug S/S 3/4 Hylok", "Location": "602-022", "Stock": 5}, {"PartID": "140261", "Description": "Plug S/S 1\" Hylok", "Location": "602-022", "Stock": 2}, {"PartID": "BHT13801 10", "Description": "Teflon Bearing for Innova Spray Arm", "Location": "602-009", "Stock": 11}, {"PartID": "140264", "Description": "Union S/S 3/4 SL X 3/4 SL", "Location": "602-022", "Stock": 1}, {"PartID": "140318", "Description": "Washer Silicone Check Valve 3/4", "Location": "602-005", "Stock": 13}, {"PartID": "140292", "Description": "Plug S/S 1\" BSP Hex Head", "Location": "602-022", "Stock": 2}, {"PartID": "140319", "Description": "Valve Check Steam 3/4\" S/S", "Location": "602-005", "Stock": 4}, {"PartID": "BHT22107 07", "Description": "Valve 230V Outlet Complete", "Location": "602-060", "Stock": 2}, {"PartID": "140397", "Description": "Pump Vacuum CVS100 Gen 5 Tiger & Gorilla", "Location": "602-060", "Stock": 0}, {"PartID": "140476", "Description": "Seal Viton 2.5\" Tri-Clover", "Location": "602-060", "Stock": 2}, {"PartID": "831018", "Description": "Ferrule S/S 6mm Hylok", "Location": "602-004", "Stock": 6}, {"PartID": "140335", "Description": "Union S/S 1/2 M X 6mm Bore Thru", "Location": "602-004", "Stock": 1}, {"PartID": "26271", "Description": "Gasket Steam Generator Gen 5", "Location": "602-060", "Stock": 3}, {"PartID": "140489", "Description": "Sensor Flow Water Gen 5", "Location": "602-060", "Stock": 1}, {"PartID": "140516", "Description": "Seal Viton 1.5\" Tri-Clover", "Location": "602-060", "Stock": 4}, {"PartID": "140334", "Description": "Gasket A/Door Round 600 Series-93", "Location": "602-060", "Stock": 2}, {"PartID": "140487", "Description": "Sensor Pressure Steam Gen 5", "Location": "602-003", "Stock": 1}, {"PartID": "140763", "Description": "Actuator Valve 3/4 Valve Module", "Location": "602-060", "Stock": 1}, {"PartID": "140766", "Description": "Seat Kit 1/2 Valve Module", "Location": "602-005", "Stock": 4}, {"PartID": "140769", "Description": "O-Ring Kit Valve Module", "Location": "602-060", "Stock": 1}, {"PartID": "140770", "Description": "Diaphragm Kit Pressure Controller", "Location": "602-060", "Stock": 1}, {"PartID": "FUGBI0102-1", "Description": "Biological Indicator to suit Plasma Sterilizer 20 minute readout (Validation only)", "Location": "602-060", "Stock": 150}, {"PartID": "PLIQ2900009", "Description": "Washer PTFE for Spray Arm IQ Range", "Location": "602-060", "Stock": 5}, {"PartID": "140980", "Description": "Cable Adapter M8 Plug - M12 Socket", "Location": "602-060", "Stock": 1}, {"PartID": "141052", "Description": "O Ring Pilot Valve Camozzi", "Location": "602-027", "Stock": 10}, {"PartID": "831037", "Description": "Grease AK50 45g Tube", "Location": "602-001", "Stock": 1}, {"PartID": "140883", "Description": "Switch Horizontal Float High Temp", "Location": "602-060", "Stock": 1}, {"PartID": "140852", "Description": "Thermocouple T Type Small Tip Probe", "Location": "602-060", "Stock": 10}, {"PartID": "140854", "Description": "Seal Viton Thermocouple 10-Way", "Location": "602-060", "Stock": 1}, {"PartID": "140903", "Description": "Connector Splicing 2.5mm 32A 2P", "Location": "602-060", "Stock": 10}];
 const db_bht = [{"Code": "1\u20132", "Model(s)": "All", "Display / Message": "ERROR 1 / 2", "Possible Cause": "Not Applicable (N.A.)", "Troubleshooting / Remedy": "N.A."}, {"Code": "3", "Model(s)": "M3", "Display / Message": "PT100 INADM.DEVI", "Possible Cause": "Temp. deviation between two sensors > limit", "Troubleshooting / Remedy": "Restart; if repeat, replace PT100 sensor."}, {"Code": "4", "Model(s)": "M3", "Display / Message": "HIGH DISINF.TEMP", "Possible Cause": "Chamber temp. > allowed limit during disinfection", "Troubleshooting / Remedy": "Restart and call service if repeated."}, {"Code": "4", "Model(s)": "M5", "Display / Message": "Def.DIFF.PT Desinf", "Possible Cause": "Temp. difference between sensors > 3\u00b0C", "Troubleshooting / Remedy": "Check chamber, boiler, and dryer PT100."}, {"Code": "5", "Model(s)": "M3", "Display / Message": "LOW DISINF.TEMP", "Possible Cause": "Chamber temp. < allowed limit during disinfection", "Troubleshooting / Remedy": "Restart and call service if repeated."}, {"Code": "5", "Model(s)": "M5", "Display / Message": "Jet Error", "Possible Cause": "Washer spray arms are not turning", "Troubleshooting / Remedy": "Check for blockages, spray arm bush, and cap."}, {"Code": "6", "Model(s)": "M3", "Display / Message": "ERROR CONDUCTIV.", "Possible Cause": "RO-water conductivity > set point value", "Troubleshooting / Remedy": "Ensure DI-water quality; check sensor."}, {"Code": "6", "Model(s)": "M5", "Display / Message": "High Disinf.Temp", "Possible Cause": "Temp. reached 98\u00b0C during holding time", "Troubleshooting / Remedy": "Check chamber PT100 and heating contactor."}, {"Code": "7", "Model(s)": "M3", "Display / Message": "WRONG VALVE", "Possible Cause": "Non-existing valve used in program", "Troubleshooting / Remedy": "Call service engineer."}, {"Code": "7", "Model(s)": "M5", "Display / Message": "Low Disinf.Temp", "Possible Cause": "Disinf. temp. not reached set value (>70\u00b0C)", "Troubleshooting / Remedy": "Check chamber PT100 and heating contactors."}, {"Code": "8", "Model(s)": "M3", "Display / Message": "TANKTEMP. > 95 C", "Possible Cause": "Wash chamber temp. exceeded safety limit", "Troubleshooting / Remedy": "Restart machine; check heating components."}, {"Code": "8", "Model(s)": "M5", "Display / Message": "Conductivity fault", "Possible Cause": "Rinse water conductivity outside tolerance", "Troubleshooting / Remedy": "Check main water supply and sensor."}, {"Code": "8-11", "Model(s)": "M4/M5ISO", "Display / Message": "Def CS Door End (op/cl/up/do)", "Possible Cause": "Door end switches (Clean Side) not recognized", "Troubleshooting / Remedy": "Check/adjust door end switch or mechanics."}, {"Code": "9", "Model(s)": "M3/M5", "Display / Message": "STOP-BUTTON / STOP-KEY", "Possible Cause": "User activated \"Stop\" key (interruption)", "Troubleshooting / Remedy": "Restart the program."}, {"Code": "10", "Model(s)": "M3/M5", "Display / Message": "WRONG RACK", "Possible Cause": "Incorrect rack/insert basket used for program", "Troubleshooting / Remedy": "Use proper rack and restart program."}, {"Code": "11", "Model(s)": "M3/M5", "Display / Message": "NO PROG-END", "Possible Cause": "Last program step not set to \"Program end\"", "Troubleshooting / Remedy": "Verify program steps (must end with type 29)."}, {"Code": "12", "Model(s)": "M3/M5", "Display / Message": "PROG.-START ERR", "Possible Cause": "First program step not set to \"Preparation\"", "Troubleshooting / Remedy": "Verify program steps (must start with type 28)."}, {"Code": "12", "Model(s)": "M5 ISO", "Display / Message": "Level-error", "Possible Cause": "Final-level reached before basic-level", "Troubleshooting / Remedy": "Reset unit and restart program."}, {"Code": "12-15", "Model(s)": "M4/M5ISO", "Display / Message": "Def. Door CS (op/cl/up/do)", "Possible Cause": "Clean Side door activity timed out", "Troubleshooting / Remedy": "Check door mechanics for jammed objects."}, {"Code": "13", "Model(s)": "M3/M5", "Display / Message": "TEMP < DOSERTEMP", "Possible Cause": "Step holding temp. is lower than dosing temp.", "Troubleshooting / Remedy": "Verify program step temperature settings."}, {"Code": "14", "Model(s)": "M3/M5", "Display / Message": "DRYER TEMP ERR", "Possible Cause": "Dryer failed to reach target temp. within timeout", "Troubleshooting / Remedy": "Check heating elements, contactor, and dryer."}, {"Code": "15", "Model(s)": "M3/M5", "Display / Message": "WRONG DOS-NR.", "Possible Cause": "Non-existing dosing unit number selected", "Troubleshooting / Remedy": "Verify program dosing step parameters."}, {"Code": "16", "Model(s)": "M3", "Display / Message": "ERR. BOIL. COOL", "Possible Cause": "Program accessing boiler water without preparation", "Troubleshooting / Remedy": "Verify program steps."}, {"Code": "16", "Model(s)": "M5 ISO", "Display / Message": "Filling < MIN", "Possible Cause": "Required water volume reached too soon", "Troubleshooting / Remedy": "Check level/pressure sensors and water valve."}, {"Code": "16", "Model(s)": "M5 ISO", "Display / Message": "Dosing Security!", "Possible Cause": "Maximum dosing time exceeded", "Troubleshooting / Remedy": "Check dosing pump/sensor; recalibrate system."}, {"Code": "16", "Model(s)": "M4/M5ISO", "Display / Message": "Safety door CS", "Possible Cause": "Safety panel of Clean Side door was pressed", "Troubleshooting / Remedy": "Remove obstructing object."}, {"Code": "17", "Model(s)": "M3", "Display / Message": "ERR. BOIL. CONTACT", "Possible Cause": "Boiler contactor monitoring reacted", "Troubleshooting / Remedy": "Test and exchange contactor if necessary."}, {"Code": "17", "Model(s)": "M5 ISO", "Display / Message": "Filling > MAX", "Possible Cause": "Maximum water volume exceeded", "Troubleshooting / Remedy": "Check level/pressure sensors and water valve."}, {"Code": "18", "Model(s)": "M3/M5", "Display / Message": "BOIL. OVERLEVEL", "Possible Cause": "Too much water in boiler; valve or switch defect", "Troubleshooting / Remedy": "Activate drain valves; check level sensors."}, {"Code": "18-21", "Model(s)": "M4/M5ISO", "Display / Message": "Def USDoorEnd (op/cl/up/do)", "Possible Cause": "Door end switches (Unclean Side) not recognized", "Troubleshooting / Remedy": "Check/adjust door end switches."}, {"Code": "19", "Model(s)": "M5 ISO", "Display / Message": "Lack of water", "Possible Cause": "Requested water volume not reached (timeout)", "Troubleshooting / Remedy": "Check water supply, valves, and drain leaks."}, {"Code": "20", "Model(s)": "M3/M5", "Display / Message": "ERR.PUMP-PRESS.", "Possible Cause": "Wash pressure control detected low pressure", "Troubleshooting / Remedy": "Check pump, pressure sensor, and foaming."}, {"Code": "22-25", "Model(s)": "M4/M5ISO", "Display / Message": "Def. Door US (op/cl/up/do)", "Possible Cause": "Unclean Side door activity timed out", "Troubleshooting / Remedy": "Check door mechanics for jammed objects."}, {"Code": "21", "Model(s)": "M3/M5", "Display / Message": "ERR. REM. FILLING", "Possible Cause": "Rest-filling after pump start failed", "Troubleshooting / Remedy": "Check water availability and filling system."}, {"Code": "22", "Model(s)": "M3", "Display / Message": "ERR. DRAINAGE", "Possible Cause": "Chamber not emptied within time limit", "Troubleshooting / Remedy": "Check drain pump and level sensors."}, {"Code": "23", "Model(s)": "M3/M5", "Display / Message": "ERR. FOAMING", "Possible Cause": "Wash pressure lost due to foaming or insertion", "Troubleshooting / Remedy": "Check endoscope insertion and foaming."}, {"Code": "24", "Model(s)": "M3/M5", "Display / Message": "TANK OVERLEVEL", "Possible Cause": "Too much water in wash chamber", "Troubleshooting / Remedy": "Check inlet valve and level system."}, {"Code": "25", "Model(s)": "M3/M5", "Display / Message": "DOOR OPEN", "Possible Cause": "Door detected open during wash cycle", "Troubleshooting / Remedy": "Check door micro switch and mechanics."}, {"Code": "25", "Model(s)": "M5 ISO", "Display / Message": "Emergency stop Error", "Possible Cause": "Conveyor emergency stop activated", "Troubleshooting / Remedy": "Check emergency switch and safety hood."}, {"Code": "26-27", "Model(s)": "M5 ISO", "Display / Message": "Safety bar (CS/UCS)", "Possible Cause": "Safety bar activated by object or operator", "Troubleshooting / Remedy": "Check for obstructions or safety bar defect."}, {"Code": "28\u201335", "Model(s)": "M4/M5ISO", "Display / Message": "Break/Def DPR (R/L)", "Possible Cause": "Inadmissible value or pressure drop in test sensors", "Troubleshooting / Remedy": "Check sensor connections; run Pressure Test (P15)."}, {"Code": "36", "Model(s)": "All", "Display / Message": "Break Tank PT100", "Possible Cause": "Inadmissible value / interruption at tank sensor", "Troubleshooting / Remedy": "Check sensor and connections."}, {"Code": "38", "Model(s)": "M5 ISO", "Display / Message": "Door CS open!", "Possible Cause": "Clean Side door detected open during program", "Troubleshooting / Remedy": "Check door open sensor."}, {"Code": "39", "Model(s)": "M5 ISO", "Display / Message": "Door UCS open!", "Possible Cause": "Unclean Side door detected open during program", "Troubleshooting / Remedy": "Check door open sensor."}, {"Code": "40", "Model(s)": "All", "Display / Message": "DOS 1 EMPTY", "Possible Cause": "Cleaner container empty or sensor defect", "Troubleshooting / Remedy": "Refill container."}, {"Code": "41", "Model(s)": "All", "Display / Message": "DOS 1 START", "Possible Cause": "Dosing unit not working after activation", "Troubleshooting / Remedy": "Run P16 (Rinsing dosage system)."}, {"Code": "42\u201358", "Model(s)": "M5 ISO", "Display / Message": "Def. Dos (1-4) (Start/MAX/Min)", "Possible Cause": "Dosing unit tolerance, flow, or activation errors", "Troubleshooting / Remedy": "Check impulse sensors, pumps, and valves; run P16."}, {"Code": "54", "Model(s)": "M4/M5ISO", "Display / Message": "Def. drain", "Possible Cause": "Chamber not emptied within time limit", "Troubleshooting / Remedy": "Check drain pump and level recognition."}, {"Code": "59", "Model(s)": "All", "Display / Message": "CALIBR. DOS.", "Possible Cause": "Dosage system calibration lost or missing", "Troubleshooting / Remedy": "Perform new calibration."}, {"Code": "60", "Model(s)": "All", "Display / Message": "ERR. TANKHEAT", "Possible Cause": "Chamber failed to reach target temperature", "Troubleshooting / Remedy": "Check heating elements, contactors, and sensors."}, {"Code": "61", "Model(s)": "M4/M5ISO", "Display / Message": "Motor prot. UWP", "Possible Cause": "Circulation pump motor overcharged or phase failed", "Troubleshooting / Remedy": "Reset motor protection switch; check for shorts."}, {"Code": "62", "Model(s)": "M4/M5ISO", "Display / Message": "STL 60 reaction", "Possible Cause": "Temperature exceeded 60\u00b0C (Endoscope programs)", "Troubleshooting / Remedy": "Check wash program parameters."}, {"Code": "63", "Model(s)": "All", "Display / Message": "Maintenance date", "Possible Cause": "Service counter reached pre-set number of cycles", "Troubleshooting / Remedy": "Carry out maintenance and reset counter."}, {"Code": "64", "Model(s)": "M5 ISO", "Display / Message": "Boiler leak", "Possible Cause": "Signal loss from boiler normal level float switch", "Troubleshooting / Remedy": "Check float switch and boiler drain valve."}, {"Code": "65", "Model(s)": "M5 ISO", "Display / Message": "Boiler inlet defect!", "Possible Cause": "Boiler failed to fill within time limit", "Troubleshooting / Remedy": "Check inlet valve and float switch."}, {"Code": "66", "Model(s)": "M5 ISO", "Display / Message": "Boiler heating defect!", "Possible Cause": "Boiler failed to reach set temperature", "Troubleshooting / Remedy": "Check heating elements and thermostat."}, {"Code": "67", "Model(s)": "M5 ISO", "Display / Message": "Break boiler PT100!", "Possible Cause": "Interruption at boiler temperature sensor", "Troubleshooting / Remedy": "Check/exchange PT100 sensor."}, {"Code": "68", "Model(s)": "M5 ISO", "Display / Message": "Short circuit boiler PT100", "Possible Cause": "Short circuit at boiler temperature sensor", "Troubleshooting / Remedy": "Check/exchange PT100 sensor."}, {"Code": "72", "Model(s)": "M5 ISO", "Display / Message": "Motor protection pump", "Possible Cause": "Recirculation pump motor overcharged", "Troubleshooting / Remedy": "Check connections, balance, and drain valve."}, {"Code": "74", "Model(s)": "All", "Display / Message": "CHANGE STERILFILT", "Possible Cause": "Maintenance interval for filter reached", "Troubleshooting / Remedy": "Replace sterile filter."}, {"Code": "84", "Model(s)": "M5 ISO", "Display / Message": "Interbus error", "Possible Cause": "Communication failure in interbus system", "Troubleshooting / Remedy": "Check connections on PLC and touchscreen."}, {"Code": "85", "Model(s)": "M5 ISO", "Display / Message": "Error in peripherals", "Possible Cause": "Fault in connected devices or Fuse F135", "Troubleshooting / Remedy": "Check fuse and search for short circuits."}, {"Code": "90", "Model(s)": "All", "Display / Message": "ERR. SCANNER", "Possible Cause": "Communication failure with scanner unit", "Troubleshooting / Remedy": "Restart machine; check scanner connections."}, {"Code": "91", "Model(s)": "All", "Display / Message": "ERR. PRINTER", "Possible Cause": "Communication failure with printer unit", "Troubleshooting / Remedy": "Check power supply and printer cable."}, {"Code": "92", "Model(s)": "All", "Display / Message": "ERR. PC / Error EDP", "Possible Cause": "Communication failure with external IT system", "Troubleshooting / Remedy": "Check machine-to-site IT connections."}, {"Code": "101", "Model(s)": "M3/M5", "Display / Message": "SERVICE-DATE", "Possible Cause": "Batch counter reached maintenance limit", "Troubleshooting / Remedy": "Complete service maintenance and reset counter"}];
 const db_gen5 = [{"Category": "Supply (SU)", "Error Code": "SU01", "Alarm Description": "Low Steam Supply", "Alarm Details": "Steam supply is below minimum pressure. Triggers an automatic cycle abort if detected during active phases (disabled in Standby per SB 166)."}, {"Category": "Supply (SU)", "Error Code": "SU02", "Alarm Description": "Low Air Supply", "Alarm Details": "Compressed air supply is below minimum pressure. Triggers an automatic cycle abort during active phases."}, {"Category": "Supply (SU)", "Error Code": "SU03", "Alarm Description": "Low Water Supply", "Alarm Details": "Water flow is below the minimum required value for the condenser or vacuum pump."}, {"Category": "Supply (SU)", "Error Code": "SU11", "Alarm Description": "High Steam Supply", "Alarm Details": "External steam supply exceeds the maximum safety setpoint."}, {"Category": "Supply (SU)", "Error Code": "SU12", "Alarm Description": "High Air Supply", "Alarm Details": "External compressed air supply exceeds the maximum safety setpoint."}, {"Category": "Supply (SU)", "Error Code": "SU13", "Alarm Description": "High Water Supply", "Alarm Details": "External water flow rate exceeds the maximum safety setpoint."}, {"Category": "Power (PW)", "Error Code": "PW01", "Alarm Description": "Power Interruption", "Alarm Details": "A power loss was detected during an active cycle. Logic maintains Door Cover state (In/Out) upon power restoration."}, {"Category": "AutoStart (AF)", "Error Code": "AF01", "Alarm Description": "AutoStart Heating Timeout", "Alarm Details": "Generator failed to heat within the allotted time for AutoStart."}, {"Category": "AutoStart (AF)", "Error Code": "AF11 / AF21", "Alarm Description": "AutoStart Failed", "Alarm Details": "AutoStart failed because Door 1 or Door 2 was left open."}, {"Category": "Generator (GE)", "Error Code": "GE01", "Alarm Description": "Generator Over Pressure", "Alarm Details": "Generator pressure exceeded the maximum allowance."}, {"Category": "Generator (GE)", "Error Code": "GE02", "Alarm Description": "Generator Over Temp", "Alarm Details": "Generator temperature exceeded the maximum safety limit."}, {"Category": "Generator (GE)", "Error Code": "GE03", "Alarm Description": "Generator Low Water", "Alarm Details": "Steam generator detected a dangerously low water level."}, {"Category": "Generator (GE)", "Error Code": "GE05", "Alarm Description": "Generator Heating Fault", "Alarm Details": "Generator took too long to reach operating pressure."}, {"Category": "Generator (GE)", "Error Code": "GE55", "Alarm Description": "Generator Level Sensor", "Alarm Details": "Level probe is disconnected or reading out of range."}, {"Category": "Generator (GE)", "Error Code": "GE99", "Alarm Description": "Press/Temp Alignment", "Alarm Details": "Generator pressure and temperature readings do not match."}, {"Category": "Clean Steam (CS)", "Error Code": "CS01", "Alarm Description": "Clean Steam Fill", "Alarm Details": "Clean steam pre-heat tank took too long to fill."}, {"Category": "Clean Steam (CS)", "Error Code": "CS02", "Alarm Description": "Clean Steam Heating", "Alarm Details": "Pre-heat tank took too long to reach operating temperature."}, {"Category": "Clean Steam (CS)", "Error Code": "CS03", "Alarm Description": "Clean Steam Pressure", "Alarm Details": "Clean steam generator failed to reach pressure."}, {"Category": "Door (DR)", "Error Code": "DR11 / DR21", "Alarm Description": "Operation Timeout", "Alarm Details": "Door 1 or Door 2 took too long to fully open or close."}, {"Category": "Door (DR)", "Error Code": "DR12 / DR22", "Alarm Description": "Encroachment Error", "Alarm Details": "Light curtain beam was broken by an object during door movement."}, {"Category": "Door (DR)", "Error Code": "DR13 / DR23", "Alarm Description": "Door Setup Error", "Alarm Details": "Incorrect gearbox or drive ratio settings detected in software."}, {"Category": "Door (DR)", "Error Code": "DR14 / DR24", "Alarm Description": "High Torque", "Alarm Details": "Motor detected a rapid change in torque required for movement."}, {"Category": "Door (DR)", "Error Code": "DR15 / DR25", "Alarm Description": "Obstruction Error", "Alarm Details": "Door movement stopped due to a physical obstruction."}, {"Category": "Door (DR)", "Error Code": "DR16 / DR26", "Alarm Description": "Cover Retract Fault", "Alarm Details": "The decorative door cover failed to retract."}, {"Category": "Door (DR)", "Error Code": "DR17 / DR27", "Alarm Description": "Panel Open", "Alarm Details": "The external service panel is open or the microswitch is not engaged."}, {"Category": "Door (DR)", "Error Code": "DR19 / DR29", "Alarm Description": "Cover Inflate Fault", "Alarm Details": "The decorative door cover failed to inflate/expand."}, {"Category": "Gasket (GK)", "Error Code": "GK01", "Alarm Description": "Low Gasket Pressure", "Alarm Details": "Gasket has not inflated to the minimum required air pressure."}, {"Category": "Gasket (GK)", "Error Code": "GK02", "Alarm Description": "Excessive Gasket Pressure", "Alarm Details": "Gasket pressure has exceeded the maximum safety limit."}, {"Category": "Pulse (PE)", "Error Code": "PE01", "Alarm Description": "Vacuum Pulse Timeout", "Alarm Details": "The vacuum pulse failed to reach the target level in time."}, {"Category": "Pulse (PE)", "Error Code": "PE02", "Alarm Description": "Pressure Pulse Timeout", "Alarm Details": "The pressure pulse failed to reach the target level in time."}, {"Category": "Pulse (PE)", "Error Code": "PE05", "Alarm Description": "Excessive Pulses", "Alarm Details": "The cycle exceeded the pulse limit (40) without reaching target temp."}, {"Category": "Sterilize (ST)", "Error Code": "ST01", "Alarm Description": "Steam Charge Warning", "Alarm Details": "The stage is nearing a timeout fault before reaching sterilize temp."}, {"Category": "Sterilize (ST)", "Error Code": "ST02", "Alarm Description": "Steam Charge Timeout", "Alarm Details": "The stage took too long to reach the sterilizing temperature."}, {"Category": "Sterilize (ST)", "Error Code": "ST03", "Alarm Description": "Low Sterilize Temp", "Alarm Details": "Chamber temperature fell below the minimum during the sterilize stage."}, {"Category": "Sterilize (ST)", "Error Code": "ST04", "Alarm Description": "Over Temperature", "Alarm Details": "Chamber temperature exceeded the maximum limit during sterilization."}, {"Category": "Sterilize (ST)", "Error Code": "ST05", "Alarm Description": "Sterilize - Residual Air", "Alarm Details": "Difference between Air Detector and Drain probes is >2°C."}, {"Category": "Air Detector (AD/AE/OK)", "Error Code": "AD01", "Alarm Description": "Air Detector Sterilize", "Alarm Details": "The Air Detector Test failed to detect air when it was expected."}, {"Category": "Air Detector (AD/AE/OK)", "Error Code": "OK01", "Alarm Description": "Air Detected", "Alarm Details": "Air detected during an Air Detector type cycle (Expected Result)."}, {"Category": "Air Detector (AD/AE/OK)", "Error Code": "AE01", "Alarm Description": "Excessive Air Fault", "Alarm Details": "Excessive air detected during the Air Admission Stage."}, {"Category": "Air Detector (AD/AE/OK)", "Error Code": "AE02", "Alarm Description": "Air Detect Calibration", "Alarm Details": "Air Detector reached temperature during a SMART cycle; needs calibration."}, {"Category": "Vacuum (VT)", "Error Code": "VT03", "Alarm Description": "Exhaust Vacuum Timeout", "Alarm Details": "The exhaust stage took too long to reach the vacuum setpoint."}, {"Category": "Vacuum (VT)", "Error Code": "VT04", "Alarm Description": "Drying Vacuum Timeout", "Alarm Details": "The drying stage took too long to achieve the required vacuum level."}, {"Category": "System (UA/SB/LR)", "Error Code": "UA01", "Alarm Description": "User Abort", "Alarm Details": "The cycle was manually stopped by an operator."}, {"Category": "System (UA/SB/LR)", "Error Code": "SB01", "Alarm Description": "Stabilize Fault", "Alarm Details": "Pressure change >10.8 kPa during the 5-minute stabilize stage."}, {"Category": "System (UA/SB/LR)", "Error Code": "LR01", "Alarm Description": "Excessive Leak", "Alarm Details": "Pressure change >1.3 kPa during a 10-minute leak rate test."}];
@@ -24,7 +92,92 @@ const db_ken = [{"Code":"20","Category":"Water Supply","Error":"Slow water filli
 const db_bandeli = [{"Model":"Bandelin Sonomic","Code Type":"Error","Code":"E1","Category":"Generator System","Error":"Generator Board 1 Defective","Action":"Generator board 1 failure or blown fuse"},{"Model":"Bandelin Sonomic","Code Type":"Error","Code":"E2","Category":"Generator System","Error":"Generator Board 2 Defective","Action":"Generator board 2 failure or blown fuse"},{"Model":"Bandelin Sonomic","Code Type":"Error","Code":"E3","Category":"Temperature Control","Error":"Temperature Board Defective","Action":"Temperature board failure or bus communication disconnected"},{"Model":"Bandelin Sonomic","Code Type":"Error","Code":"E4","Category":"Control Electronics","Error":"Relay Board Defective","Action":"Relay board failure or bus line disconnected"},{"Model":"Bandelin Sonomic","Code Type":"Error","Code":"E5","Category":"Heating System","Error":"Heating System Failure","Action":"Heating element or relay board defective; ultrasound may still heat bath"},{"Model":"Bandelin Sonomic","Code Type":"Error","Code":"E6","Category":"Flow Monitoring","Error":"Flow Rate Sensor Failure","Action":"Flow sensor unavailable or defective"},{"Model":"Bandelin Sonomic","Code Type":"Error","Code":"E7","Category":"Pump System","Error":"Pump Failure","Action":"Pump unavailable or defective"},{"Model":"Bandelin Sonomic","Code Type":"Error","Code":"E8","Category":"Channel Control","Error":"Channel Selector Failure","Action":"Channel selector defective or bus line disconnected"},{"Model":"Bandelin Trison","Code Type":"Error","Code":"E01","Category":"Pneumatic System","Error":"Compressed Air Pressure Error","Action":"Minimum pressure (5 bar) not reached or air coupling defective"},{"Model":"Bandelin Trison","Code Type":"Error","Code":"E02","Category":"Filtration System","Error":"Filter Clogged","Action":"Filter blocked, hose obstruction, or defective 2.1 bar pressure switch"},{"Model":"Bandelin Trison","Code Type":"Error","Code":"E05","Category":"Motor Control","Error":"Motorised Switch Failure","Action":"Motorised switch, control module, or controller board defective"},{"Model":"Bandelin Trison","Code Type":"Warning","Code":"W04","Category":"Accessory System","Error":"Twist Missing or Defective","Action":"TRISON Twist not installed or control module/controller fault"},{"Model":"Bandelin Trison","Code Type":"Warning","Code":"W05","Category":"Temperature Control","Error":"Bath Temperature Too Low","Action":"Bath fluid below required temperature; sensor or control module may be faulty"},{"Model":"Bandelin Trison","Code Type":"Warning","Code":"W06","Category":"Temperature Control","Error":"Bath Temperature Too High","Action":"Bath fluid above safe temperature; sensor or control module may be faulty"},{"Model":"Bandelin Sonorex","Code Type":"Fault","Code":"None","Category":"System Operation","Error":"Unit Not Powering On","Action":"Possible power supply or internal electrical fault"},{"Model":"Bandelin Sonorex","Code Type":"Fault","Code":"None","Category":"Cleaning Performance","Error":"Unsatisfactory Cleaning Results","Action":"Possible degassing skipped, wrong detergent, or overloaded bath"}];
 const db_platypus = [{"Category":"Platypus IQ Series (IQ3, IQ4, IQ5, IQ6)","Code":"SERVICE","Error":"Service Alarm","Cause":"Machine continues running but has detected an issue","Action":"Service technician should inspect machine soon","Severity":"Service Warning"},{"Category":"Platypus IQ Series (IQ3, IQ4, IQ5, IQ6)","Code":"CRITICAL","Error":"Critical Error","Cause":"Process stops immediately due to system fault","Action":"Do not force door open; use unlock code (e.g., 12468)","Severity":"Critical"},{"Category":"Platypus IQ Series (IQ3, IQ4, IQ5, IQ6)","Code":"CRITICAL","Error":"Critical Error Continued","Cause":"System locked in fault state","Action":"Acknowledge error using Reset button and contact service if covers must be removed","Severity":"Critical"},{"Category":"Platypus Sonomic","Code":"E1","Error":"Generator board 1 defective","Cause":"Rinsing component failure","Action":"Unit usable only in processing mode 3; contact service","Severity":"Critical"},{"Category":"Platypus Sonomic","Code":"E2","Error":"Generator board 2 defective","Cause":"Rinsing component failure","Action":"Unit usable only in processing mode 3; contact service","Severity":"Critical"},{"Category":"Platypus Sonomic","Code":"E3","Error":"Temperature board defective","Cause":"Rinsing component failure","Action":"Unit usable only in processing mode 3; contact service","Severity":"Critical"},{"Category":"Platypus Sonomic","Code":"E4","Error":"Relay board defective","Cause":"Rinsing component failure","Action":"Unit usable only in processing mode 3; contact service","Severity":"Critical"},{"Category":"Platypus Sonomic","Code":"E5","Error":"Heating defective","Cause":"Heater failure","Action":"Machine still usable but manually monitor bath temperature (18–25°C)","Severity":"Warning"},{"Category":"Platypus Sonomic","Code":"E6","Error":"Flow rate sensor defective","Cause":"Sensor failure affecting rinse cycle","Action":"Unit usable only in processing mode 3; contact service","Severity":"Critical"},{"Category":"Platypus Sonomic","Code":"E7","Error":"Pump defective","Cause":"Pump failure affecting rinsing system","Action":"Unit usable only in processing mode 3; contact service","Severity":"Critical"},{"Category":"Platypus Sonomic","Code":"E8","Error":"Channel selector defective","Cause":"Channel control failure","Action":"Unit usable only in processing mode 3; contact service","Severity":"Critical"},{"Category":"Platypus Sonomic","Code":"None","Error":"Filter clogged","Cause":"Filter cartridge clogged or incorrectly installed","Action":"Remove housing and replace filter cartridge","Severity":"Warning"},{"Category":"Platypus Sonomic","Code":"None","Error":"Instrument non-patent","Cause":"Instrument lumen blocked or adapters incorrect","Action":"Check fluid coverage, adapter connections and hoses","Severity":"Warning"},{"Category":"Platypus Sonomic","Code":"None","Error":"Insufficient fluid","Cause":"Fill level sensor dirty or defective","Action":"Clean sensor and adjust fluid concentration","Severity":"Warning"},{"Category":"Platypus Sonomic","Code":"None","Error":"Temperature exceeds 40°C","Cause":"Bath fluid too hot","Action":"Change bath liquid partially or fully","Severity":"Warning"},{"Category":"Platypus Sonomic","Code":"None","Error":"Temperature too low","Cause":"Bath fluid too cold","Action":"Wait for heating cycle to complete","Severity":"Information"},{"Category":"Platypus Sonomic","Code":"None","Error":"Serious device defect","Cause":"Critical system failure","Action":"Unit not ready for use; contact service","Severity":"Critical"},{"Category":"Platypus Sonomic","Code":"None","Error":"Maintenance interval reached","Cause":"Approx. 4500 operating hours reached","Action":"Perform scheduled 2-year maintenance","Severity":"Maintenance"},{"Category":"Platypus Sonomic","Code":"None","Error":"Hose exchange necessary","Cause":"Pump hose reached 1000 hours","Action":"Replace pump hose","Severity":"Maintenance"},{"Category":"Platypus Sonomic","Code":"None","Error":"Display remains dark","Cause":"No power supply","Action":"Check mains power connection switch and fuses","Severity":"Critical"},{"Category":"Platypus Sonomic","Code":"None","Error":"Blinking progress bars","Cause":"Bath preparing for operation","Action":"Wait up to 1 minute","Severity":"Information"},{"Category":"Platypus Sonomic","Code":"None","Error":"Unsatisfactory cleaning","Cause":"Degassing skipped or insufficient cleaning agent","Action":"Perform degassing and use approved cleaning agent","Severity":"Warning"},{"Category":"Platypus Sonomic","Code":"None","Error":"Weak or loud oscillation","Cause":"Machine overloaded or generator defective","Action":"Remove instruments or perform foil test","Severity":"Warning"},{"Category":"Platypus Sonomic","Code":"None","Error":"Crash on welcome screen","Cause":"Unit powered on/off too quickly","Action":"Turn off unit and wait 10 seconds before restarting","Severity":"Information"},{"Category":"Platypus Trison","Code":"E01","Error":"No air pressure","Cause":"Compressed air not connected or pressure incorrect","Action":"Check air coupling and pressure settings","Severity":"Critical"},{"Category":"Platypus Trison","Code":"E02","Error":"Filter clogged","Cause":"Filter cartridge clogged or installed incorrectly","Action":"Replace filter cartridge or reinstall correctly","Severity":"Warning"},{"Category":"Platypus Trison","Code":"E05","Error":"Error switch defective","Cause":"Internal switch failure","Action":"Manufacturer repair required","Severity":"Critical"},{"Category":"Platypus Trison","Code":"W02","Error":"Maintenance warning","Cause":"2-year maintenance interval reached","Action":"Perform maintenance","Severity":"Maintenance"},{"Category":"Platypus Trison","Code":"None","Error":"Temperature exceeds critical value","Cause":"Bath fluid too hot","Action":"Allow liquid to cool or partially replace fluid","Severity":"Warning"},{"Category":"Platypus Trison","Code":"None","Error":"Temperature too low","Cause":"Bath fluid too cold","Action":"Replace liquid with fluid at least 20°C","Severity":"Warning"},{"Category":"Platypus Trison","Code":"None","Error":"Twist not connected","Cause":"Robotic program started without TRISON Twist","Action":"Connect Twist accessory","Severity":"Warning"},{"Category":"Platypus Trison","Code":"None","Error":"Maximum protocols reached","Cause":"Storage limit of 50 protocols reached","Action":"Export protocols to USB and delete from system","Severity":"Information"},{"Category":"Platypus Trison","Code":"None","Error":"Process interrupted","Cause":"User manually interrupted process","Action":"Press Back to cancel or Forward to confirm","Severity":"Information"},{"Category":"Platypus Trison","Code":"None","Error":"Display remains dark","Cause":"No power supply","Action":"Check mains connection switch and fuses","Severity":"Critical"},{"Category":"Platypus Trison","Code":"None","Error":"Freezes on welcome screen","Cause":"Fast power cycling or network issue","Action":"Wait 10 seconds before restart and check ethernet cable","Severity":"Warning"},{"Category":"Platypus Trison","Code":"None","Error":"Instrument not penetrable","Cause":"Fluid coverage or hose issue","Action":"Check adapters and hoses","Severity":"Warning"},{"Category":"Platypus Trison","Code":"None","Error":"Uneven instrument movement","Cause":"Normal chaotic programmed movement","Action":"No action required","Severity":"Information"},{"Category":"Platypus Trison","Code":"None","Error":"Weak or loud oscillation","Cause":"Oscillation system or HF generator failure","Action":"Perform foil test and compare with baseline","Severity":"Warning"},{"Category":"Platypus Trison","Code":"None","Error":"Unsatisfactory cleaning","Cause":"Degassing skipped or poor cleaning agent","Action":"Perform degassing or manual cleaning","Severity":"Warning"},{"Category":"Platypus Sonorex","Code":"None","Error":"Weak or uneven oscillation","Cause":"Possible defective oscillation components","Action":"Perform foil test and verify fill level or degassing","Severity":"Warning"}];
 const db_hippo = [{"Category":"Drying System","Type":"Alarm","Code":"A18","Error":"Overheating Drying Module 1","Cause":"Drying module temperature exceeded safe limit","Notes":""},{"Category":"Cabinet Access","Type":"Alarm","Code":"A19","Error":"Maintenance Door Opened (CPT)","Cause":"Maintenance access panel open or incorrectly installed","Notes":"Compact model"},{"Category":"Water Supply","Type":"Alarm","Code":"A20","Error":"Slow Water Filling Direct Water 1","Cause":"Water inlet filling slower than expected","Notes":""},{"Category":"Water Supply","Type":"Alarm","Code":"A21","Error":"Slow Water Filling Direct Water 2","Cause":"Water inlet filling slow","Notes":"Compact / Manual door models"},{"Category":"Water Supply","Type":"Alarm","Code":"A24","Error":"Slow Water Filling Direct Water 3","Cause":"Water filling delay detected","Notes":""},{"Category":"Water Supply","Type":"Alarm","Code":"A25","Error":"No Water Filling Direct Water 1","Cause":"No water detected during filling stage","Notes":""},{"Category":"Water Supply","Type":"Alarm","Code":"A26","Error":"No Water Filling Direct Water 2","Cause":"Water supply failure","Notes":""},{"Category":"Pump System","Type":"Alarm","Code":"A27","Error":"Main Pump Pressure Sensor Error","Cause":"Pressure sensor malfunction","Notes":""},{"Category":"Drain System","Type":"Alarm","Code":"A28","Error":"Washing Chamber Draining Failed","Cause":"Drain cycle unsuccessful","Notes":""},{"Category":"Water Supply","Type":"Alarm","Code":"A29","Error":"No Water Filling Direct Water 3","Cause":"Water inlet failure","Notes":""},{"Category":"Heating System","Type":"Warning","Code":"W30","Error":"Water Heating Too Slow","Cause":"Chamber heating slower than expected","Notes":""},{"Category":"Drying System","Type":"Warning","Code":"W32","Error":"Drying Module 1 Heating Too Slow","Cause":"Slow temperature rise","Notes":""},{"Category":"Drying System","Type":"Warning","Code":"W33","Error":"Drying Module 2 Heating Too Slow","Cause":"Slow heating detected","Notes":""},{"Category":"Drying System","Type":"Alarm","Code":"A34","Error":"No Heating Drying Module 1","Cause":"Heating element failure","Notes":""},{"Category":"Heating System","Type":"Alarm","Code":"A35","Error":"Chamber Heater Protection Active","Cause":"Safety thermostat triggered","Notes":""},{"Category":"Drying System","Type":"Alarm","Code":"A36","Error":"No Heating Drying Module 2","Cause":"Heating failure detected","Notes":""},{"Category":"Machine Installation","Type":"Alarm","Code":"A39","Error":"Machine Not Level","Cause":"Floor not horizontal","Notes":""},{"Category":"Machine Installation","Type":"Alarm","Code":"A40","Error":"Tilting Floor Error","Cause":"Incorrect floor tilt detected","Notes":""},{"Category":"Chemical Dosing","Type":"Alarm","Code":"A41","Error":"Chemistry 1 Flowmeter Disparity","Cause":"Dosing flow mismatch","Notes":""},{"Category":"Chemical Dosing","Type":"Alarm","Code":"A42","Error":"Chemistry 2 Flowmeter Disparity","Cause":"Dosing flow mismatch","Notes":""},{"Category":"Chemical Dosing","Type":"Alarm","Code":"A43","Error":"Chemistry 3 Flowmeter Disparity","Cause":"Dosing flow mismatch","Notes":""},{"Category":"Chemical Dosing","Type":"Alarm","Code":"A44","Error":"Chemistry 4 Flowmeter Disparity","Cause":"Dosing flow mismatch","Notes":""},{"Category":"Chemical Supply","Type":"Alarm","Code":"A45","Error":"Chemical 1 Low Level","Cause":"Chemical container empty","Notes":""},{"Category":"Chemical Supply","Type":"Alarm","Code":"A46","Error":"Chemical 2 Low Level","Cause":"Chemical container empty","Notes":""},{"Category":"Chemical Supply","Type":"Alarm","Code":"A47","Error":"Chemical 3 Low Level","Cause":"Chemical container empty","Notes":""},{"Category":"Chemical Supply","Type":"Alarm","Code":"A48","Error":"Chemical 4 Low Level","Cause":"Chemical container empty","Notes":""},{"Category":"Communication","Type":"Warning","Code":"W61","Error":"XML Data Client Offline","Cause":"Network data logging connection lost","Notes":""},{"Category":"Door System","Type":"Alarm","Code":"A65","Error":"Door Loading Side Not Closed","Cause":"Door switch indicates open","Notes":""},{"Category":"Door System","Type":"Alarm","Code":"A67","Error":"Door Unloading Side Not Closed","Cause":"Door switch indicates open","Notes":""},{"Category":"Temperature Control","Type":"Alarm","Code":"A74","Error":"Prewash Temperature Too High","Cause":"Temperature exceeded programmed limit","Notes":""},{"Category":"Temperature Control","Type":"Alarm","Code":"A75","Error":"Wash Chamber Temperature Out of Range","Cause":"Temperature outside allowable range","Notes":""},{"Category":"Drying System","Type":"Alarm","Code":"A76","Error":"Drying Temperature Out of Range","Cause":"Temperature sensor deviation","Notes":""},{"Category":"Disinfection Monitoring","Type":"Alarm","Code":"A77","Error":"Disinfection Temperature Out of Range","Cause":"Disinfection monitor failure","Notes":""},{"Category":"Temperature Control","Type":"Alarm","Code":"A79","Error":"Wash Chamber Temperature Difference Too High","Cause":"Sensor difference detected","Notes":""},{"Category":"Water Quality","Type":"Alarm","Code":"A85","Error":"Water Conductivity Too Low","Cause":"Possible incorrect water source","Notes":""},{"Category":"Water Quality","Type":"Alarm","Code":"A86","Error":"Water Conductivity Too High","Cause":"Possible contamination or wrong supply","Notes":""},{"Category":"Rinse System","Type":"Alarm","Code":"A87","Error":"Maximum Rinse Retries Reached","Cause":"Rinse stage repeatedly failed","Notes":""},{"Category":"Tank System","Type":"Warning","Code":"W110","Error":"Tank 1 Completely Empty","Cause":"Tank empty detected","Notes":""},{"Category":"Tank System","Type":"Alarm","Code":"A113","Error":"Tank 1 Heating Too Slow","Cause":"Heating inefficiency detected","Notes":""},{"Category":"Tank System","Type":"Alarm","Code":"A114","Error":"Tank 1 Water Leak Detected","Cause":"Possible tank leakage","Notes":""},{"Category":"Tank System","Type":"Warning","Code":"W117","Error":"Tank 1 Filling Too Slow","Cause":"Water filling delay","Notes":""},{"Category":"Tank System","Type":"Warning","Code":"W118","Error":"Tank 1 Draining Too Slow","Cause":"Drain system restriction","Notes":""},{"Category":"Mechanical System","Type":"Alarm","Code":"A121","Error":"Nozzle Tilting Blocked","Cause":"Mechanical obstruction","Notes":""},{"Category":"Water Metering","Type":"Alarm","Code":"A125","Error":"Direct Water Flowmeter Inaccurate","Cause":"Flow sensor misreading","Notes":""},{"Category":"Tank System","Type":"Alarm","Code":"A130","Error":"Tank 1 Temperature Out of Range","Cause":"Temperature sensor fault","Notes":""},{"Category":"Tank System","Type":"Alarm","Code":"A131","Error":"Tank 1 Heater Protection Active","Cause":"Safety cutoff triggered","Notes":""},{"Category":"Drying System","Type":"Alarm","Code":"A133","Error":"Blower Motor Overload","Cause":"Motor current overload","Notes":""},{"Category":"Drying System","Type":"Alarm","Code":"A134","Error":"No Drying Air Flow","Cause":"Air circulation failure","Notes":""},{"Category":"Disinfection Monitoring","Type":"Warning","Code":"W138","Error":"No Disinfection Within 24 Hours","Cause":"Maintenance reminder","Notes":""},{"Category":"Disinfection Monitoring","Type":"Alarm","Code":"A139","Error":"Disinfection Timeout","Cause":"Disinfection cycle failed","Notes":""},{"Category":"Tank System","Type":"Alarm","Code":"A142","Error":"Tank 1 Volume Out of Range","Cause":"Incorrect water level","Notes":""},{"Category":"Chemical Dosing","Type":"Alarm","Code":"A145","Error":"Chemistry 1 Dosing Failed","Cause":"Dosing pump malfunction","Notes":""},{"Category":"Chemical Dosing","Type":"Alarm","Code":"A146","Error":"Chemistry 2 Dosing Failed","Cause":"Dosing pump malfunction","Notes":""},{"Category":"Chemical Dosing","Type":"Alarm","Code":"A147","Error":"Chemistry 3 Dosing Failed","Cause":"Dosing pump malfunction","Notes":""},{"Category":"Chemical Dosing","Type":"Alarm","Code":"A148","Error":"Chemistry 4 Dosing Failed","Cause":"Dosing pump malfunction","Notes":""},{"Category":"Heating System","Type":"Alarm","Code":"A156","Error":"Wash Chamber Water Overheating","Cause":"Temperature exceeded limit","Notes":""},{"Category":"Water Supply","Type":"Alarm","Code":"A157","Error":"No Water in Chamber After Filling","Cause":"Water supply failure","Notes":""},{"Category":"Emergency System","Type":"Alarm","Code":"A175","Error":"Emergency Stop Activated","Cause":"External emergency stop pressed","Notes":""},{"Category":"Communication","Type":"Alarm","Code":"A201","Error":"CAN Communication Error","Cause":"Controller communication failure","Notes":""},{"Category":"Drive System","Type":"Alarm","Code":"A210","Error":"Frequency Inverter Failure","Cause":"Motor drive fault","Notes":""},{"Category":"Wash System","Type":"Alarm","Code":"A212","Error":"Target Wash Pressure Not Reached","Cause":"Possible pump or blockage issue","Notes":""},{"Category":"Trolley System","Type":"Alarm","Code":"A213","Error":"Trolley Not Docked","Cause":"Water flow disabled until docking complete","Notes":""},{"Category":"Wash System","Type":"Alarm","Code":"A216","Error":"Wash Pressure Out of Range","Cause":"Pressure sensor reading abnormal","Notes":""},{"Category":"Water Supply","Type":"Alarm","Code":"A244","Error":"No Water Pressure for Heating","Cause":"Heating stage disabled due to supply pressure","Notes":""},{"Category":"Operator Control","Type":"Alarm","Code":"A245","Error":"Chamber Stop Button Pressed","Cause":"Manual stop triggered","Notes":""},{"Category":"Air Supply","Type":"Alarm","Code":"A247","Error":"Not Enough Air Pressure","Cause":"Pneumatic system pressure low","Notes":""},{"Category":"Water Supply","Type":"Alarm","Code":"A248","Error":"No Water Filling Chamber Temperature Too High","Cause":"Safety lockout during filling","Notes":""},{"Category":"Drain System","Type":"Alarm","Code":"A249","Error":"Drain Pump Protection Active","Cause":"Pump thermal protection triggered","Notes":""},{"Category":"Heating System","Type":"Alarm","Code":"A252","Error":"Thermal Oil Leak Detected","Cause":"Thermal oil heating system leak","Notes":""},{"Category":"System Control","Type":"Alarm","Code":"A255","Error":"Forced IO While Program Running","Cause":"External IO override during cycle","Notes":""}];
-const db_pan_alarms = [];
+const db_pan_alarms = [
+    {
+        "Code": "DOOR FAULT",
+        "Category": "Door System",
+        "Description": "The display shows this fault if the door closed sensor indicates the door is no longer closed during a cycle.",
+        "Cause": "Door closed sensor lost signal during active cycle.",
+        "Action": "Check for obstructions. Check that 24VDC is present at the actuator. Check door sensitivity. Repair or replace the actuator if needed."
+    },
+    {
+        "Code": "Door Obstruction / Major Fault",
+        "Category": "Door System",
+        "Description": "A screen appears if the door is obstructed during operation. If not acknowledged, a Major Fault Screen will appear.",
+        "Cause": "Physical obstruction blocking door movement.",
+        "Action": "Remove the obstruction and press the 'Error Fixed Continue' button. For a major fault, navigate to System Menu → select 'Reset Door' button, turn it on then off (not momentary)."
+    },
+    {
+        "Code": "UNDER TEMPERATURE",
+        "Category": "Temperature Control",
+        "Description": "The unit failed to achieve or maintain a temperature greater than 85°C during the sanitising stage.",
+        "Cause": "Steamer element fault, low water level, or probe failure.",
+        "Action": "Check the steamer element and replace if faulty. Check the water level in the cold water tank. Clean and de-scale the steamer and the controlling thermostat probe. Replace the probe if faulty."
+    },
+    {
+        "Code": "CYCLE TOO LONG",
+        "Category": "Cycle Control",
+        "Description": "A cycle failed to complete within the maximum 12-minute period. Cycle watchdog timer is suggested to be set at 600 seconds (10 minutes).",
+        "Cause": "Steamer element fault, low water level, or probe failure causing prolonged heating.",
+        "Action": "Check the steamer element and replace if faulty. Check the water level in the cold water tank. Clean and de-scale the steamer and the controlling thermostat probe. Replace the probe if faulty."
+    },
+    {
+        "Code": "STEAMER TIME OUT",
+        "Category": "Steamer System",
+        "Description": "The steamer has taken too long to reach the required sanitising temperature.",
+        "Cause": "Steamer element fault, low water, scale build-up, or faulty probe.",
+        "Action": "Check the steamer element and replace if faulty. Check the water level in the cold water tank. Clean and de-scale the steamer and the controlling thermostat probe. Replace the probe if faulty."
+    },
+    {
+        "Code": "STEAMER LOW WATER",
+        "Category": "Steamer System",
+        "Description": "The steamer ran out of water while operating.",
+        "Cause": "Cold water supply off, float valve/switch fault, or low water level.",
+        "Action": "Ensure the cold water supply is turned on. Check the float valve and float switch for correct operation and replace if faulty. Check the water level."
+    },
+    {
+        "Code": "Steamer Over-temperature",
+        "Category": "Steamer System",
+        "Description": "An alarm is triggered if the steamer temperature exceeds 110°C for more than 2 seconds. The cycle will abort.",
+        "Cause": "Steamer overheating due to blocked feeder tube, scale build-up, or insufficient cold water.",
+        "Action": "Navigate to System Menu → press 'Reset Steamer Button'. Ensure cold water is turned on. Check that the cold water tank steamer feeder tube restrictor is not blocked. Clean and de-scale the steamer and the feeder tube restrictor. Check the water level."
+    },
+    {
+        "Code": "Low Sanitising Temperature",
+        "Category": "Temperature Control",
+        "Description": "An active alarm indicating that the sanitising temperature is below the required level.",
+        "Cause": "General temperature issue — steamer or probe fault likely.",
+        "Action": "Check steamer element and probes. Apply general temperature troubleshooting steps."
+    },
+    {
+        "Code": "System Low Battery",
+        "Category": "PLC / Electronics",
+        "Description": "A screen will appear to indicate that the backup battery for the PLC (which maintains system time) is low.",
+        "Cause": "PLC backup battery depleted.",
+        "Action": "Contact Atherton or your service agent to have the system battery replaced."
+    },
+    {
+        "Code": "COMMS FAIL",
+        "Category": "Communications",
+        "Description": "This message appears in the top right corner of the touchscreen if communication between the PLC and the touchscreen fails.",
+        "Cause": "PLC to touchscreen communication failure.",
+        "Action": "Check communication cables between PLC and touchscreen. Restart the system. Contact Atherton if the issue persists."
+    },
+    {
+        "Code": "No Power",
+        "Category": "Power",
+        "Description": "The unit does not have power.",
+        "Cause": "Unplugged unit or isolating switch off.",
+        "Action": "Ensure the plug is secure in the outlet and the isolating switch is on."
+    },
+    {
+        "Code": "Not Cleaning Properly",
+        "Category": "Cleaning Performance",
+        "Description": "The receptacles are not being cleaned effectively.",
+        "Cause": "Blocked spray nozzles reducing water coverage.",
+        "Action": "Check the spray nozzles and clean them if they are blocked."
+    }
+];
 window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan: db_pan, pan_alarms: db_pan_alarms, ken: db_ken, bandeli: db_bandeli, platypus: db_platypus, hippopotamus: db_hippo };
 
 </script>
@@ -332,7 +485,8 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
             <div class="main-search-container" style="padding: 0; margin: 0 0 20px 0;">
                 <div class="search-wrapper" style="position:relative;">
                     <i class="ph ph-magnifying-glass search-icon"></i>
-                    <input type="text" id="mainSearch" class="main-search-input" placeholder="Search parts, errors, S/N..." oninput="handleGlobalSearch()">
+                    <input type="text" id="mainSearch" class="main-search-input" placeholder="Search parts, errors, S/N..." oninput="handleGlobalSearch()" style="padding-right:70px;">
+                    <button onclick="openQRScanner()" style="position:absolute;right:36px;top:50%;transform:translateY(-50%);background:none;border:none;color:#6366f1;font-size:1.3rem;cursor:pointer;padding:4px;line-height:1;" title="Scan QR Code"><i class="ph-fill ph-qr-code"></i></button>
                     <button id="mainSearchClear" onclick="clearMainSearch()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;padding:0;line-height:1;"><i class="ph-bold ph-x-circle"></i></button>
                 </div>
             </div>
@@ -457,7 +611,7 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
             </div>
         </div>
         <div style="text-align:center; padding: 18px 0 28px; color:#cbd5e1; font-size:0.65rem; font-family:'Inter',sans-serif; font-weight:600; letter-spacing:2px; text-transform:uppercase; user-select:none;">
-            MIN'S DATABASE PRO &nbsp;&middot;&nbsp; Rev 2.5.0 &nbsp;&middot;&nbsp; Apr 2026
+            MIN'S DATABASE PRO &nbsp;&middot;&nbsp; Rev 3.0.1 &nbsp;&middot;&nbsp; Apr 2026
         </div>
     </main>
 
@@ -490,6 +644,7 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
 
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="processPhoto(event)">
 <input type="file" id="diagPdfInput" accept="application/pdf" multiple style="display:none;" onchange="processDiagPdfs(event)">
+<input type="file" id="vaultFileInput" accept="*/*" multiple style="display:none;" onchange="processVaultFiles(event)">
 
 <script>
     // In actual usage, db is loaded from data.js. If missing, define fallback.
@@ -3835,22 +3990,24 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         sc.innerHTML = '';
         sc.style.padding = '16px';
 
-        // ── Notes ──
+        // ── Notes (preview card → fullscreen editor) ──
         const notes = getDiagNotes(folderId);
         const noteEl = document.createElement('div');
-        noteEl.style.cssText = 'margin-bottom:16px;';
+        noteEl.style.cssText = 'margin-bottom:16px;cursor:pointer;';
+        const preview = notes ? notes.substring(0, 120).replace(/\n/g, ' ') + (notes.length > 120 ? '...' : '') : 'No notes yet. Tap to add...';
         noteEl.innerHTML = `
-            <div style="font-size:0.68rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:5px;">
-                <i class="ph-fill ph-note-pencil" style="color:#f59e0b;"></i> Notes
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div style="font-size:0.68rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:5px;">
+                    <i class="ph-fill ph-note-pencil" style="color:#f59e0b;"></i> Notes
+                </div>
+                <div style="font-size:0.68rem;font-weight:700;color:#6366f1;">
+                    <i class="ph-bold ph-arrow-square-out"></i> Open
+                </div>
             </div>
-            <textarea id="diagNoteArea" placeholder="Type your notes here…"
-                style="width:100%;min-height:120px;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;font-size:0.9rem;font-family:'Inter',sans-serif;resize:vertical;box-sizing:border-box;outline:none;line-height:1.5;color:#1e293b;background:white;"
-                onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"
-            >${notes}</textarea>
-            <button onclick="saveDiagNotes('${folderId}',document.getElementById('diagNoteArea').value); this.textContent='Saved ✓'; setTimeout(()=>{this.textContent='Save Notes';},2000);"
-                style="margin-top:8px;background:#6366f1;color:white;border:none;border-radius:10px;padding:10px 20px;font-weight:800;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;">
-                Save Notes
-            </button>`;
+            <div style="background:white;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;font-size:0.88rem;color:${notes ? '#1e293b' : '#94a3b8'};line-height:1.5;font-family:'Inter',sans-serif;min-height:50px;">
+                ${preview}
+            </div>`;
+        noteEl.onclick = function() { openFullscreenNotes(folderId); };
         sc.appendChild(noteEl);
 
         // ── PDFs ──
@@ -3914,8 +4071,11 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         const files = Array.from(event.target.files);
         if (!files.length) return;
         let done = 0;
-        openDiagIDB(function(db) {
-            files.forEach(function(file) {
+        files.forEach(function(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const arrayBuf = e.target.result;
+                const pdfBlob = new Blob([arrayBuf], { type: 'application/pdf' });
                 const id = target.folderId + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,5);
                 const rec = {
                     id: id,
@@ -3924,17 +4084,24 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
                     name: file.name,
                     size: file.size,
                     date: new Date().toLocaleDateString('en-AU', {day:'2-digit',month:'short',year:'numeric'}),
-                    blob: file
+                    blob: pdfBlob
                 };
-                const tx = db.transaction('pdfs','readwrite');
-                tx.objectStore('pdfs').put(rec);
-                tx.oncomplete = function() {
-                    done++;
-                    if (done === files.length) {
-                        loadDiagFolderPdfs(target.mode, target.folderId);
-                    }
-                };
-            });
+                openDiagIDB(function(db) {
+                    const tx = db.transaction('pdfs','readwrite');
+                    tx.objectStore('pdfs').put(rec);
+                    tx.oncomplete = function() {
+                        done++;
+                        if (done === files.length) {
+                            loadDiagFolderPdfs(target.mode, target.folderId);
+                        }
+                    };
+                    tx.onerror = function(err) {
+                        alert('Error saving PDF: ' + file.name);
+                        done++;
+                    };
+                });
+            };
+            reader.readAsArrayBuffer(file);
         });
         event.target.value = '';
     }
@@ -3943,12 +4110,73 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         openDiagIDB(function(db) {
             db.transaction('pdfs','readonly').objectStore('pdfs').get(pdfId).onsuccess = function(e) {
                 const pdf = e.target.result;
-                if (!pdf || !pdf.blob) { alert('PDF not found.'); return; }
-                const url = URL.createObjectURL(pdf.blob);
-                window.open(url, '_blank');
-                setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+                if (!pdf || !pdf.blob) { alert('PDF not found. Try re-uploading the file.'); return; }
+                var blob = pdf.blob;
+                if (blob instanceof ArrayBuffer) {
+                    blob = new Blob([blob], { type: 'application/pdf' });
+                }
+                if (!(blob instanceof Blob)) {
+                    try { blob = new Blob([blob], { type: 'application/pdf' }); } catch(ex) {
+                        alert('Cannot open this PDF. Try re-uploading.'); return;
+                    }
+                }
+                openInAppPdfViewer(blob, pdf.name || 'document.pdf');
             };
         });
+    }
+
+    var _pdfBlobUrl = null;
+
+    function openInAppPdfViewer(blob, name) {
+        // Revoke any previous URL
+        if (_pdfBlobUrl) { try { URL.revokeObjectURL(_pdfBlobUrl); } catch(e) {} }
+        _pdfBlobUrl = URL.createObjectURL(blob);
+
+        var modal    = document.getElementById('pdfViewerModal');
+        var frame    = document.getElementById('pdfViewerFrame');
+        var fallback = document.getElementById('pdfViewerFallback');
+        var nameEl   = document.getElementById('pdfViewerName');
+        var dlBtn    = document.getElementById('pdfViewerDownload');
+        var fbDlBtn  = document.getElementById('pdfFallbackDownload');
+        var fbName   = document.getElementById('pdfFallbackName');
+
+        nameEl.textContent  = name;
+        fbName.textContent  = name;
+        frame.style.display = 'block';
+        fallback.style.display = 'none';
+        modal.style.display = 'flex';
+
+        // Load PDF into iframe
+        frame.src = _pdfBlobUrl;
+
+        // Detect if iframe failed (common on iOS Safari for PDFs)
+        var loaded = false;
+        frame.onload = function() { loaded = true; };
+        setTimeout(function() {
+            if (!loaded) {
+                frame.style.display = 'none';
+                fallback.style.display = 'flex';
+            }
+        }, 3000);
+
+        // Download / Save buttons
+        function doDownload() {
+            var a = document.createElement('a');
+            a.href = _pdfBlobUrl;
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        dlBtn.onclick   = doDownload;
+        fbDlBtn.onclick = doDownload;
+
+        // Close button
+        document.getElementById('pdfViewerClose').onclick = function() {
+            modal.style.display = 'none';
+            frame.src = 'about:blank';
+            if (_pdfBlobUrl) { try { URL.revokeObjectURL(_pdfBlobUrl); } catch(e) {} _pdfBlobUrl = null; }
+        };
     }
 
     function deleteDiagPdfIDB(pdfId, mode, folderId) {
@@ -3957,6 +4185,197 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
             tx.objectStore('pdfs').delete(pdfId);
             tx.oncomplete = function() { loadDiagFolderPdfs(mode, folderId); };
         });
+    }
+
+    
+    // ══════════════════════════════════════════════════════════════
+    // QR CODE SCANNER
+    // ══════════════════════════════════════════════════════════════
+    let _qrScanner = null;
+    let _qrLastResult = '';
+
+    function openQRScanner() {
+        const modal = document.getElementById('qrScannerModal');
+        modal.style.display = 'block';
+        document.getElementById('qrResultBanner').style.display = 'none';
+        _qrLastResult = '';
+
+        try {
+            _qrScanner = new Html5Qrcode("qrReader", {
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.QR_CODE,
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.CODE_39,
+                    Html5QrcodeSupportedFormats.CODE_93,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.UPC_E,
+                    Html5QrcodeSupportedFormats.DATA_MATRIX,
+                    Html5QrcodeSupportedFormats.ITF
+                ]
+            });
+            _qrScanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 15,
+                    qrbox: function(viewfinderWidth, viewfinderHeight) {
+                        var w = Math.floor(viewfinderWidth * 0.85);
+                        var h = Math.floor(viewfinderHeight * 0.4);
+                        return { width: Math.max(w, 250), height: Math.max(h, 150) };
+                    },
+                    aspectRatio: 1.0
+                },
+                function onScan(decoded) {
+                    if (decoded === _qrLastResult) return;
+                    _qrLastResult = decoded;
+                    // Vibrate feedback
+                    if (navigator.vibrate) navigator.vibrate(100);
+                    document.getElementById('qrResultText').textContent = decoded;
+                    document.getElementById('qrResultBanner').style.display = 'block';
+                },
+                function onError() {}
+            ).catch(function(err) {
+                alert('Camera error: ' + err);
+                closeQRScanner();
+            });
+        } catch(e) {
+            alert('QR scanner not available: ' + e.message);
+            closeQRScanner();
+        }
+    }
+
+    function closeQRScanner() {
+        if (_qrScanner) {
+            try { _qrScanner.stop().then(function(){ _qrScanner.clear(); }); } catch(e) {}
+            _qrScanner = null;
+        }
+        document.getElementById('qrScannerModal').style.display = 'none';
+        document.getElementById('qrReader').innerHTML = '';
+    }
+
+    function qrLookupPart() {
+        const scanned = _qrLastResult.trim();
+        if (!scanned) return;
+        closeQRScanner();
+
+        // Search all parts (db.parts + inv601)
+        const allParts = (db.parts || []).concat(
+            (window._inv601Data || []).filter(function(p) {
+                return !(db.parts || []).find(function(b) { return b.PartID === p.PartID && b.Location === p.Location; });
+            })
+        );
+
+        // Try exact Part ID match first
+        const exact = allParts.find(function(p) { return p.PartID === scanned; });
+        if (exact) {
+            const isInv601 = (window._inv601Data || []).find(function(x){ return x.PartID === exact.PartID && x.Location === exact.Location; });
+            const is602 = (db.parts || []).find(function(x){ return x.PartID === exact.PartID && x.Location === exact.Location; });
+            showDetails(exact, isInv601 && !is602 ? 'inv601' : 'parts');
+            return;
+        }
+
+        // Try partial match
+        const q = scanned.toLowerCase();
+        const partial = allParts.filter(function(p) {
+            return (p.PartID || '').toLowerCase().includes(q) || (p.Description || '').toLowerCase().includes(q);
+        });
+
+        if (partial.length === 1) {
+            showDetails(partial[0], 'parts');
+            return;
+        }
+
+        // Fall back to putting the scanned value in the search bar
+        document.getElementById('mainSearch').value = scanned;
+        handleGlobalSearch();
+    }
+
+    function qrCopyAndClose() {
+        const text = _qrLastResult;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text);
+        }
+        closeQRScanner();
+        // Also put it in search
+        document.getElementById('mainSearch').value = text;
+        handleGlobalSearch();
+    }
+
+    
+    // ── Vault Folder Fullscreen Notes ─────────────────────────────
+    window._vaultNotesFolderId = null;
+
+    function openVaultFolderNotes(folderId) {
+        window._vaultNotesFolderId = folderId;
+        const folder = masterDrive[currentDriveCat].find(function(f){ return f.id === folderId; });
+        if (!folder) return;
+        const modal = document.getElementById('notesFullscreenModal');
+        const area  = document.getElementById('notesFullArea');
+        area.value  = folder.notes || '';
+        modal.style.display = 'flex';
+
+        document.getElementById('notesBackBtn').onclick = function() {
+            // Auto-save and close
+            folder.notes = area.value;
+            saveDrive();
+            modal.style.display = 'none';
+            window._vaultNotesFolderId = null;
+            viewFolder(folderId); // re-render with updated preview
+        };
+        document.getElementById('notesSaveBtn').onclick = function() {
+            folder.notes = area.value;
+            saveDrive();
+            var toast = document.getElementById('notesSavedToast');
+            toast.style.display = 'block';
+            setTimeout(function(){ toast.style.display='none'; }, 1800);
+        };
+        setTimeout(function(){ area.focus(); }, 200);
+    }
+
+        // ══════════════════════════════════════════════════════════════
+    // FULLSCREEN NOTES EDITOR
+    // ══════════════════════════════════════════════════════════════
+    window._notesFolderId = null;
+
+    function openFullscreenNotes(folderId) {
+        window._notesFolderId = folderId;
+        const modal = document.getElementById('notesFullscreenModal');
+        const area = document.getElementById('notesFullArea');
+        area.value = getDiagNotes(folderId);
+        modal.style.display = 'flex';
+
+        // Back button
+        document.getElementById('notesBackBtn').onclick = function() {
+            closeFullscreenNotes();
+        };
+
+        // Save button
+        document.getElementById('notesSaveBtn').onclick = function() {
+            saveDiagNotes(folderId, area.value);
+            // Show toast
+            var toast = document.getElementById('notesSavedToast');
+            toast.style.display = 'block';
+            setTimeout(function() { toast.style.display = 'none'; }, 1800);
+        };
+
+        // Focus the textarea
+        setTimeout(function() { area.focus(); }, 200);
+    }
+
+    function closeFullscreenNotes() {
+        var fid = window._notesFolderId;
+        var area = document.getElementById('notesFullArea');
+        // Auto-save on close
+        if (fid && area) {
+            saveDiagNotes(fid, area.value);
+        }
+        document.getElementById('notesFullscreenModal').style.display = 'none';
+        // Refresh the subfolder view if still open
+        if (window._diagSubState && window._diagSubState.folderId === fid) {
+            renderDiagSubfolderContent(window._diagSubState.mode, fid);
+        }
+        window._notesFolderId = null;
     }
 
         // ── Long-press (3 sec hold) logic ────────────────────────────────
@@ -4366,14 +4785,28 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         const c = document.getElementById('secContent');
         
         if(type === 'temp') {
-            document.getElementById('secTitle').innerText = "Avg Temp Calculator";
+            document.getElementById('secTitle').innerText = "Temp Calculator";
             c.innerHTML = `
                 <div class="calc-panel">
-                    <div class="calc-input-group">
-                        <input type="number" id="tMin" class="calc-input" placeholder="Min Temp °C" step="0.1" oninput="doTempCalc()">
-                        <input type="number" id="tMax" class="calc-input" placeholder="Max Temp °C" step="0.1" oninput="doTempCalc()">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Min Temp (°C)</label>
+                    <input type="number" id="tMin" class="calc-input" style="width:100%; margin-bottom:15px;" placeholder="e.g. 134.2" step="0.1" oninput="doTempCalc()">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Max Temp (°C)</label>
+                    <input type="number" id="tMax" class="calc-input" style="width:100%; margin-bottom:15px;" placeholder="e.g. 137.8" step="0.1" oninput="doTempCalc()">
+                    <div class="calc-res-circle"><div class="calc-res-val" id="tRes">--</div><div class="calc-res-lbl">Average °C</div></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px;">
+                        <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:14px; text-align:center;">
+                            <div style="font-size:1.3rem; font-weight:900; color:var(--primary); font-family:'Outfit',sans-serif;" id="tResF">--</div>
+                            <div class="calc-res-lbl">°F</div>
+                        </div>
+                        <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:14px; text-align:center;">
+                            <div style="font-size:1.3rem; font-weight:900; color:var(--primary); font-family:'Outfit',sans-serif;" id="tResK">--</div>
+                            <div class="calc-res-lbl">Kelvin</div>
+                        </div>
                     </div>
-                    <div class="calc-res-circle"><div class="calc-res-val" id="tRes">--</div><div class="calc-res-lbl">Average</div></div>
+                    <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:14px; text-align:center; margin-top:12px;">
+                        <div style="font-size:1.3rem; font-weight:900; color:var(--coral); font-family:'Outfit',sans-serif;" id="tResRange">--</div>
+                        <div class="calc-res-lbl">°C Range (Max − Min)</div>
+                    </div>
                 </div>
             `;
         } 
@@ -4702,9 +5135,22 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
     }
 
     function doTempCalc() {
-        const min = parseFloat(document.getElementById('tMin').value);
-        const max = parseFloat(document.getElementById('tMax').value);
-        document.getElementById('tRes').innerText = (!isNaN(min) && !isNaN(max)) ? ((min + max) / 2).toFixed(1) : '--';
+        const mn = parseFloat(document.getElementById("tMin").value);
+        const mx = parseFloat(document.getElementById("tMax").value);
+        if (isNaN(mn) && isNaN(mx)) {
+            document.getElementById("tRes").textContent = "--";
+            document.getElementById("tResF").textContent = "--";
+            document.getElementById("tResK").textContent = "--";
+            document.getElementById("tResRange").textContent = "--";
+            return;
+        }
+        // If only one value entered, use it as the average
+        const avg = (!isNaN(mn) && !isNaN(mx)) ? ((mn + mx) / 2) : (!isNaN(mn) ? mn : mx);
+        const range = (!isNaN(mn) && !isNaN(mx)) ? Math.abs(mx - mn) : 0;
+        document.getElementById("tRes").textContent = avg.toFixed(2);
+        document.getElementById("tResF").textContent = ((avg * 9/5) + 32).toFixed(2);
+        document.getElementById("tResK").textContent = (avg + 273.15).toFixed(2);
+        document.getElementById("tResRange").textContent = range.toFixed(2);
     }
     function doFlowCalc() {
         const rate = parseFloat(document.getElementById('fRate').value);
@@ -5322,82 +5768,101 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         document.getElementById('secTitle').innerText = "Folder Details";
         const c = document.getElementById('secContent');
         
-        let filesHtml = '';
-        if (folder.files && folder.files.length > 0) {
-            folder.files.forEach((file, index) => {
-                filesHtml += `
-                    <div class="data-card" style="display:flex; align-items:center; justify-content:space-between; cursor:default; margin-top:10px;">
-                        <div style="flex:1;" onclick="viewFileFromFolder('${id}', ${index})">
-                            <div class="data-title" style="color:var(--primary); cursor:pointer;"><i class="ph-bold ph-file" style="margin-right:5px;"></i> ${file.name}</div>
-                            <div class="data-sub">Size: ${(file.data.length / 1024).toFixed(1)} KB</div>
-                        </div>
-                        <button class="btn btn-danger" style="padding:10px 15px; border-radius: 8px;" onclick="deleteFileFromFolder('${id}', ${index})"><i class="ph-bold ph-trash"></i></button>
-                    </div>
-                `;
-            });
-        } else {
-            filesHtml = `
-                <div class="empty-state" style="padding:30px 10px; margin-top:10px;">
-                    <i class="ph-fill ph-file empty-icon" style="color:var(--text-muted); font-size:2rem; margin-bottom:10px;"></i>
-                    <p style="font-size:0.9rem; color:var(--text-muted);">No files uploaded yet.</p>
-                </div>
-            `;
-        }
+        // Files rendered async from IDB after HTML is set
+        const filesHtml = '<div id="vaultFileList"><div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.85rem;"><i class="ph-fill ph-spinner" style="font-size:1.5rem;"></i><br>Loading files...</div></div>';
 
-        let dateInputsHtml = '';
+
+        // Build notes preview (120 chars)
+        const notePreview = (folder.notes || '').substring(0, 120).replace(/\n/g, ' ')
+            + ((folder.notes || '').length > 120 ? '...' : '');
+        const noteDisplay = notePreview || 'No notes yet. Tap to add...';
+        const noteColor   = folder.notes ? '#1e293b' : '#94a3b8';
+
+        // Induction-specific styled cards
+        let inductionCardsHtml = '';
         if (currentDriveCat === 'inductions') {
-            dateInputsHtml = `
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <div style="flex:1;">
-                        <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:5px;">Start Date</label>
-                        <input type="date" id="fldStart" class="vault-input" value="${folder.startDate || ''}" oninput="updateFolderData()">
+            const expiry    = folder.expiry    || '';
+            const startDate = folder.startDate || '';
+            let statusBadge = '';
+            let statusColor = '#64748b';
+            if (expiry) {
+                const today = new Date(); today.setHours(0,0,0,0);
+                const exp   = new Date(expiry);
+                const diff  = Math.ceil((exp - today) / 86400000);
+                if (diff < 0)        { statusBadge = 'EXPIRED';        statusColor = '#ef4444'; }
+                else if (diff <= 30) { statusBadge = diff + ' days left'; statusColor = '#f59e0b'; }
+                else                 { statusBadge = 'VALID';           statusColor = '#22c55e'; }
+            }
+            inductionCardsHtml = `
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+                    <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:14px; text-align:center;">
+                        <div style="font-size:0.68rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:4px;">
+                            <i class="ph-fill ph-calendar-blank" style="color:#6366f1;"></i> Start Date
+                        </div>
+                        <input type="date" id="fldStart" class="vault-input" value="${startDate}"
+                            style="text-align:center; font-size:0.9rem; font-weight:700; border:none; background:transparent; outline:none; width:100%; color:#1e293b;"
+                            oninput="updateFolderData()">
                     </div>
-                    <div style="flex:1;">
-                        <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:5px;">Expiry Date</label>
-                        <input type="date" id="fldExpiry" class="vault-input" value="${folder.expiry || ''}" oninput="updateFolderData()">
+                    <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:14px; text-align:center;">
+                        <div style="font-size:0.68rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:4px;">
+                            <i class="ph-fill ph-calendar-x" style="color:#ef4444;"></i> Expiry Date
+                        </div>
+                        <input type="date" id="fldExpiry" class="vault-input" value="${expiry}"
+                            style="text-align:center; font-size:0.9rem; font-weight:700; border:none; background:transparent; outline:none; width:100%; color:#1e293b;"
+                            oninput="updateFolderData()">
                     </div>
                 </div>
+                ${statusBadge ? `<div style="text-align:center; margin-bottom:16px;">
+                    <span style="background:${statusColor}22; color:${statusColor}; border:1.5px solid ${statusColor}55; border-radius:20px; padding:6px 18px; font-size:0.8rem; font-weight:800; letter-spacing:1px; text-transform:uppercase;">
+                        ${statusBadge}
+                    </span>
+                </div>` : ''}
             `;
         }
 
         c.innerHTML = `
-            <div class="calc-panel" style="padding:20px; border-radius:var(--radius-lg); margin-bottom:20px; box-shadow:var(--shadow-sm);">
+            <div class="calc-panel" style="padding:20px; border-radius:var(--radius-lg); margin-bottom:16px; box-shadow:var(--shadow-sm);">
                 <input type="text" id="fldName" class="folder-title-input" value="${folder.name}" placeholder="Folder Name" oninput="updateFolderData()">
-                
-                ${dateInputsHtml}
-                
-                <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:5px;">Folder Notes</label>
-                <textarea id="fldNotes" class="vault-input" placeholder="Type notes here..." oninput="updateFolderData()">${folder.notes || ''}</textarea>
-            </div>
-            
-            <div style="background:var(--card-bg); padding:20px; border-radius:var(--radius-lg); margin-bottom:20px; box-shadow:var(--shadow-sm);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <label style="font-weight:800; color:var(--dark); margin:0;">Attached Files</label>
+                ${inductionCardsHtml}
+
+                <!-- Notes preview card -->
+                <div style="font-size:0.68rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
+                    <span style="display:flex;align-items:center;gap:5px;"><i class="ph-fill ph-note-pencil" style="color:#f59e0b;"></i> Notes</span>
+                    <span style="color:#6366f1;font-size:0.68rem;font-weight:700;"><i class="ph-bold ph-arrow-square-out"></i> Open</span>
                 </div>
-                
-                <input type="file" id="folderFileUpload" class="vault-input" style="padding:10px; border: 1px solid #e2e8f0; border-radius: 8px; width: 100%; box-sizing: border-box; background: #f8fafc; margin-bottom:10px;">
-                <button class="btn btn-primary" style="width:100%; padding: 12px; font-weight: bold;" onclick="uploadFileToFolder('${id}')">
-                    <i class="ph-bold ph-upload-simple"></i> Upload File
+                <div onclick="openVaultFolderNotes('${id}')" style="background:white;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;font-size:0.88rem;color:${noteColor};line-height:1.5;font-family:'Inter',sans-serif;min-height:48px;cursor:pointer;">
+                    ${noteDisplay}
+                </div>
+            </div>
+
+            <div style="background:var(--card-bg); padding:20px; border-radius:var(--radius-lg); margin-bottom:16px; box-shadow:var(--shadow-sm);">
+                <div style="font-size:0.68rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:5px;">
+                    <i class="ph-fill ph-files" style="color:var(--primary);"></i> Files <span class="vaultFileCount">(loading...)</span>
+                </div>
+                <input type="file" id="folderFileUpload" style="display:none;">
+                <button class="btn btn-primary" style="width:100%; padding:12px; font-weight:bold;"
+                    onclick="window._vaultUploadFolderId='${id}'; document.getElementById('vaultFileInput').value=''; document.getElementById('vaultFileInput').click();">
+                    <i class="ph-bold ph-upload-simple"></i> Upload Files
                 </button>
-                
-                <div style="margin-top:20px;">
-                    ${filesHtml}
-                </div>
+                <div style="margin-top:16px;">${filesHtml}</div>
             </div>
-            
+
             <div style="display:flex; gap:10px;">
                 <button class="btn btn-secondary" style="flex:1" onclick="renderFolders()"><i class="ph-bold ph-arrow-left"></i> Back to Vault</button>
                 <button class="btn btn-danger" style="flex:1" onclick="deleteFolder('${id}')"><i class="ph-bold ph-trash"></i> Delete Folder</button>
             </div>
         `;
+        // Wire IDB file loader after DOM is ready
+        setTimeout(function() {
+            loadVaultFiles(id);
+            document.getElementById('secTitle').innerText = folder.name || 'Folder';
+        }, 0);
     }
 
     function updateFolderData() {
         const folder = masterDrive[currentDriveCat].find(f => f.id === currentFolderID);
         if(folder) {
             const nameEl = document.getElementById('fldName');
-            const notesEl = document.getElementById('fldNotes');
-            
             if (nameEl) folder.name = nameEl.value;
             if (currentDriveCat === 'inductions') {
                 const startEl = document.getElementById('fldStart');
@@ -5405,68 +5870,146 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
                 if (startEl) folder.startDate = startEl.value;
                 if (expiryEl) folder.expiry = expiryEl.value;
             }
-            if (notesEl) folder.notes = notesEl.value;
             
             saveDrive();
         }
     }
 
-    function uploadFileToFolder(folderId) {
-        const fileInput = document.getElementById('folderFileUpload');
-        if (!fileInput.files.length) return alert("Please select a file first.");
-        const file = fileInput.files[0];
-        
-        const folder = masterDrive[currentDriveCat].find(f => f.id === folderId);
-        if(!folder) return;
-        if(!folder.files) folder.files = [];
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                folder.files.push({
-                    name: file.name,
-                    type: file.type || 'application/octet-stream',
-                    data: e.target.result
-                });
-                saveDrive();
-                viewFolder(folderId); // Re-render to show new file
-            } catch (err) {
-                alert("File too large to store in local memory! Try a smaller file.");
+    // ── Vault Drive IDB File System ───────────────────────────────
+    var _vaultFileIDB = null;
+    var _vaultUploadFolderId = null;
+
+    function openVaultIDB(cb) {
+        if (_vaultFileIDB) { cb(_vaultFileIDB); return; }
+        var req = indexedDB.open('mins_vault_idb', 1);
+        req.onupgradeneeded = function(e) {
+            var db = e.target.result;
+            if (!db.objectStoreNames.contains('files')) {
+                var store = db.createObjectStore('files', { keyPath: 'id' });
+                store.createIndex('by_folder', 'folderId', { unique: false });
             }
         };
-        reader.readAsDataURL(file);
+        req.onsuccess = function(e) { _vaultFileIDB = e.target.result; cb(_vaultFileIDB); };
+        req.onerror   = function()  { alert('Vault storage unavailable.'); };
     }
-    
-    function deleteFileFromFolder(folderId, fileIndex) {
-        if (confirm("Are you sure you want to delete this file?")) {
-            const folder = masterDrive[currentDriveCat].find(f => f.id === folderId);
-            if(folder && folder.files) {
-                folder.files.splice(fileIndex, 1);
-                saveDrive();
-                viewFolder(folderId);
-            }
-        }
+
+    function processVaultFiles(event) {
+        var folderId = window._vaultUploadFolderId;
+        if (!folderId) return;
+        var files = Array.from(event.target.files);
+        if (!files.length) return;
+        var done = 0;
+        files.forEach(function(file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var blob = new Blob([e.target.result], { type: file.type || 'application/octet-stream' });
+                var id = folderId + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5);
+                openVaultIDB(function(db) {
+                    var tx = db.transaction('files', 'readwrite');
+                    tx.objectStore('files').put({
+                        id: id,
+                        folderId: folderId,
+                        name: file.name,
+                        type: file.type || 'application/octet-stream',
+                        size: file.size,
+                        date: new Date().toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' }),
+                        blob: blob
+                    });
+                    tx.oncomplete = function() {
+                        done++;
+                        if (done === files.length) loadVaultFiles(folderId);
+                    };
+                    tx.onerror = function() { alert('Error saving: ' + file.name); };
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        });
+        event.target.value = '';
     }
-    
-    function viewFileFromFolder(folderId, fileIndex) {
-        const folder = masterDrive[currentDriveCat].find(f => f.id === folderId);
-        if(!folder || !folder.files || !folder.files[fileIndex]) return;
-        const file = folder.files[fileIndex];
-        
-        let fileWindow = window.open("");
-        if(fileWindow) {
-            if (file.type.startsWith('image/')) {
-                fileWindow.document.write("<body style='margin:0; background:#0f172a; display:flex; justify-content:center; align-items:center; height:100vh;'><img src='" + file.data + "' style='max-width:100%; max-height:100%; object-fit:contain;'></body>");
-            } else if (file.type === 'application/pdf') {
-                fileWindow.document.write("<iframe width='100%' height='100%' src='" + file.data + "' style='border:none; margin:0; padding:0; overflow:hidden;'></iframe>");
-                fileWindow.document.body.style.margin = "0";
-            } else {
-                fileWindow.document.write("<body style='margin:0; padding:20px; font-family:sans-serif;'><h3>Cannot preview this file type ("+file.type+").</h3><a href='" + file.data + "' download='" + file.name + "'>Click here to download it</a></body>");
-            }
-        } else {
-            alert("Please allow popups for this app to view the file.");
-        }
+
+    function loadVaultFiles(folderId) {
+        openVaultIDB(function(db) {
+            var results = [];
+            var tx = db.transaction('files', 'readonly');
+            var idx = tx.objectStore('files').index('by_folder');
+            idx.openCursor(IDBKeyRange.only(folderId)).onsuccess = function(e) {
+                var c = e.target.result;
+                if (c) { results.push(c.value); c.continue(); }
+            };
+            tx.oncomplete = function() {
+                var el = document.getElementById('vaultFileList');
+                if (!el) return;
+                // Update file count in header
+                var hdr = el.previousElementSibling;
+                if (hdr) {
+                    var span = hdr.querySelector('.vaultFileCount');
+                    if (span) span.textContent = '(' + results.length + ')';
+                }
+                if (results.length === 0) {
+                    el.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;font-size:0.85rem;background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:12px;"><i class="ph-fill ph-files" style="font-size:2rem;display:block;margin-bottom:8px;color:#cbd5e1;"></i>No files uploaded yet</div>';
+                } else {
+                    el.innerHTML = results.map(function(f) {
+                        var icon = f.type && f.type.startsWith('image/') ? 'ph-image' : (f.type === 'application/pdf' ? 'ph-file-pdf' : 'ph-file');
+                        var iconColor = f.type === 'application/pdf' ? '#ef4444' : (f.type && f.type.startsWith('image/') ? '#22c55e' : '#6366f1');
+                        return '<div style="display:flex;align-items:center;gap:12px;padding:13px 14px;background:white;border:1.5px solid #e2e8f0;border-radius:12px;margin-bottom:8px;cursor:pointer;" onclick="viewVaultFile(\'' + f.id + '\')">' +
+                            '<i class="ph-fill ' + icon + '" style="font-size:1.8rem;color:' + iconColor + ';flex-shrink:0;"></i>' +
+                            '<div style="flex:1;min-width:0;">' +
+                                '<div style="font-weight:700;font-size:0.9rem;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + f.name + '</div>' +
+                                '<div style="font-size:0.7rem;color:#94a3b8;margin-top:3px;">' + (f.size ? (f.size/1024).toFixed(0) + ' KB' : '') + (f.date ? ' &nbsp;·&nbsp; ' + f.date : '') + '</div>' +
+                            '</div>' +
+                            '<button onclick="event.stopPropagation();deleteVaultFile(\'' + f.id + '\',\'' + folderId + '\')" style="background:#fef2f2;border:1px solid #fecaca;border-radius:9px;padding:7px 9px;color:#ef4444;cursor:pointer;font-size:0.85rem;flex-shrink:0;"><i class="ph-bold ph-trash"></i></button>' +
+                        '</div>';
+                    }).join('');
+                }
+            };
+        });
     }
+
+    function viewVaultFile(fileId) {
+        openVaultIDB(function(db) {
+            db.transaction('files', 'readonly').objectStore('files').get(fileId).onsuccess = function(e) {
+                var f = e.target.result;
+                if (!f || !f.blob) { alert('File not found. Try re-uploading.'); return; }
+                var blob = f.blob instanceof Blob ? f.blob : new Blob([f.blob], { type: f.type || 'application/octet-stream' });
+                if (f.type && f.type.startsWith('image/')) {
+                    // Images: open in in-app image viewer
+                    var url = URL.createObjectURL(blob);
+                    var modal = document.getElementById('pdfViewerModal');
+                    var frame = document.getElementById('pdfViewerFrame');
+                    document.getElementById('pdfViewerName').textContent = f.name;
+                    document.getElementById('pdfViewerFallback').style.display = 'none';
+                    frame.style.display = 'block';
+                    frame.src = url;
+                    modal.style.display = 'flex';
+                    document.getElementById('pdfViewerClose').onclick = function() {
+                        modal.style.display = 'none'; frame.src = 'about:blank'; URL.revokeObjectURL(url);
+                    };
+                    document.getElementById('pdfViewerDownload').onclick = function() {
+                        var a = document.createElement('a'); a.href = url; a.download = f.name;
+                        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                    };
+                } else {
+                    // PDFs and other files: use in-app viewer
+                    openInAppPdfViewer(blob, f.name);
+                }
+            };
+        });
+    }
+
+    function deleteVaultFile(fileId, folderId) {
+        openVaultIDB(function(db) {
+            var tx = db.transaction('files', 'readwrite');
+            tx.objectStore('files').delete(fileId);
+            tx.oncomplete = function() { loadVaultFiles(folderId); };
+        });
+    }
+
+    // Keep old functions as no-ops to avoid errors from any stale references
+    function uploadFileToFolder(folderId) {}
+    function deleteFileFromFolder(folderId, fileIndex) {}
+    function viewFileFromFolder(folderId, fileIndex) {}
+
 
     function deleteFolder(id) {
         if(confirm("Are you sure you want to delete this folder and its contents?")) {
