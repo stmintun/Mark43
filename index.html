@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
     
     <!-- Link to external Data file -->
     <!-- Fullscreen Notes Editor -->
@@ -178,7 +178,12 @@ const db_pan_alarms = [
         "Action": "Check the spray nozzles and clean them if they are blocked."
     }
 ];
-window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan: db_pan, pan_alarms: db_pan_alarms, ken: db_ken, bandeli: db_bandeli, platypus: db_platypus, hippopotamus: db_hippo };
+const db_washer = [{"Unit S/N":"8456123790","Hospital":"Hollywood Private Hospital","Block":"Brislee Wing","Level":"Ground Floor","Room":"Recovery 2","Comments":"Heating element may be faulty. Requires testing and possible replacement."},{"Unit S/N":"9034571268","Hospital":"Westside Medical Centre","Block":"North Wing","Level":"2","Room":"ICU 1","Comments":"Door gasket worn out. Replacement required."},{"Unit S/N":"7349812560","Hospital":"Green Valley Hospital","Block":"East Wing","Level":"3","Room":"Ward 7","Comments":"Thermostat may need calibration or replacement."},{"Unit S/N":"6825149730","Hospital":"CityCare Hospital","Block":"South Wing","Level":"1","Room":"Emergency","Comments":"Control panel or wiring fault suspected."},{"Unit S/N":"5198734621","Hospital":"Riverside Private Hospital","Block":"Central Block","Level":"4","Room":"Maternity Ward","Comments":"Fan motor may be worn. Inspection required."}];
+const db_sterilizer = [{"Unit S/N":"7812459632","Hospital":"Hollywood Private Hospital","Block":"Brislee Wing","Level":"1","Room":"CSSD","Comments":"Drain pump likely blocked or faulty. Requires inspection and cleaning or replacement."},{"Unit S/N":"6923147850","Hospital":"Westside Medical Centre","Block":"North Wing","Level":"2","Room":"Sterile Room","Comments":"Possible control board or sensor fault. Further diagnostics required."},{"Unit S/N":"8547296130","Hospital":"Green Valley Hospital","Block":"East Wing","Level":"Ground Floor","Room":"CSSD","Comments":"Heating element or thermostat may be faulty. Requires testing and replacement if necessary."},{"Unit S/N":"9735612480","Hospital":"CityCare Hospital","Block":"South Wing","Level":"3","Room":"Theatre Wash Area","Comments":"Door lock mechanism faulty. Needs adjustment or replacement."},{"Unit S/N":"6158247390","Hospital":"Riverside Private Hospital","Block":"Central Block","Level":"2","Room":"Decontamination","Comments":"Possible hose or seal failure. Inspect and replace damaged components."}];
+const db_blanket = [{"Unit S/N":"8456123790","Hospital":"Hollywood Private Hospital","Block":"Brislee Wing","Level":"Ground Floor","Room":"Recovery 2","Comments":"Heating element may be faulty. Requires testing and possible replacement."},{"Unit S/N":"9034571268","Hospital":"Westside Medical Centre","Block":"North Wing","Level":"2","Room":"ICU 1","Comments":"Door gasket worn out. Replacement required."},{"Unit S/N":"7349812560","Hospital":"Green Valley Hospital","Block":"East Wing","Level":"3","Room":"Ward 7","Comments":"Thermostat may need calibration or replacement."},{"Unit S/N":"6825149730","Hospital":"CityCare Hospital","Block":"South Wing","Level":"1","Room":"Emergency","Comments":"Control panel or wiring fault suspected."},{"Unit S/N":"5198734621","Hospital":"Riverside Private Hospital","Block":"Central Block","Level":"4","Room":"Maternity Ward","Comments":"Fan motor may be worn. Inspection required."}];
+const db_dryer = [{"Unit S/N":"5638291742","Hospital":"St. Vincent's","Block":"North Wing","Level":"2","Room":"CSSD-3","Comments":"Door gasket worn out. Replacement required."},{"Unit S/N":"7281945630","Hospital":"Royal Perth","Block":"East Tower","Level":"4","Room":"Sterile Room B","Comments":"Thermostat may need calibration or replacement."},{"Unit S/N":"1847362950","Hospital":"Fiona Stanley","Block":"Surgical Wing","Level":"1","Room":"Equipment Bay 2","Comments":"Control panel or wiring fault suspected."},{"Unit S/N":"3094857162","Hospital":"Joondalup Health Campus","Block":"West Wing","Level":"3","Room":"Laundry Unit","Comments":"Fan motor may be worn. Inspection required."},{"Unit S/N":"8451029376","Hospital":"Sir Charles Gairdner","Block":"Central Block","Level":"6","Room":"CSSD Main","Comments":""}];
+const db_heatsealer = [{"Unit S/N":"6729451830","Hospital":"St. John of God Subiaco","Block":"South Wing","Level":"2","Room":"CSSD-1","Comments":"Seal not consistent across pouches"},{"Unit S/N":"5918372640","Hospital":"Royal Perth","Block":"West Tower","Level":"3","Room":"Sterile Room A","Comments":"Heating element not reaching set temp"},{"Unit S/N":"8301947265","Hospital":"Fiona Stanley","Block":"Central Wing","Level":"1","Room":"Prep Room 4","Comments":"Warning alarm keeps triggering"},{"Unit S/N":"2746195830","Hospital":"Hollywood Private Hospital","Block":"Brislee Wing","Level":"5","Room":"SCCD","Comments":"Handle mechanism is loose"},{"Unit S/N":"9182736450","Hospital":"Sir Charles Gairdner","Block":"North Block","Level":"4","Room":"CSSD Main","Comments":"Display screen flickering intermittently"}];
+window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan: db_pan, pan_alarms: db_pan_alarms, ken: db_ken, bandeli: db_bandeli, platypus: db_platypus, hippopotamus: db_hippo, washer: db_washer, sterilizer: db_sterilizer, blanket: db_blanket, dryer: db_dryer, heatsealer: db_heatsealer };
 
 </script>
 
@@ -205,12 +210,15 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body { 
-            font-family: 'Inter', system-ui, sans-serif; background: var(--bg); 
-            margin: 0; padding: 0; color: var(--text-main); overflow-x: hidden; 
+        html, body {
+            margin: 0; padding: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            color: var(--text-main);
+            overflow-x: hidden;
             overscroll-behavior-y: none;
+            background: var(--bg);
         }
-        
+
         #app { position: relative; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg); }
         .view-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; background: var(--bg); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); padding-bottom: 40px; }
         
@@ -220,12 +228,14 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         body.view-active #homeView { transform: translateX(-30%) scale(0.98); opacity: 0.8; }
         body.view-active #secondaryView { transform: translateX(0); box-shadow: -10px 0 25px rgba(0,0,0,0.05); }
 
-        header { 
-            background: var(--dark); color: white; padding: 25px 20px 25px 20px; 
-            position: relative; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; 
+        header {
+            background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 60%, #1e293b 100%);
+            color: white; padding: 28px 20px 38px 20px;
+            position: relative; border-bottom-left-radius: 32px; border-bottom-right-radius: 32px;
             overflow: hidden;
         }
-        header::after { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(20px); }
+        header::before { content:''; position:absolute; top:-60px; left:-40px; width:200px; height:200px; background:radial-gradient(circle,rgba(99,102,241,0.25),transparent 70%); border-radius:50%; }
+        header::after  { content:''; position:absolute; bottom:-40px; right:-30px; width:160px; height:160px; background:radial-gradient(circle,rgba(59,130,246,0.2),transparent 70%); border-radius:50%; }
         
         .logo-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 25px; position: relative; z-index: 2; }
         .logo-icon { font-size: 2rem; color: var(--primary); }
@@ -250,7 +260,6 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         .hold-ring circle.ring-fill  { fill: none; stroke: var(--primary); stroke-width: 4; stroke-linecap: round;
             stroke-dasharray: 100; stroke-dashoffset: 100; transform-origin: center; transform: rotate(-90deg);
             transition: stroke-dashoffset linear; }
-
         /* ── Part Action Sheet ── */
         .part-action-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.45); z-index: 300; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
         .part-action-overlay.active { opacity: 1; pointer-events: all; }
@@ -263,49 +272,186 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         .part-action-btn i { font-size: 1.3rem; }
 
         /* ── Edit Part Form Sheet ── */
-        .edit-modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 400; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+        .edit-modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 400; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
         .edit-modal-overlay.active { opacity: 1; pointer-events: all; }
-        .edit-modal-sheet { background: var(--surface); width: 100%; max-width: 600px; margin: 0 auto; border-radius: 24px 24px 0 0; padding: 24px 20px 40px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); }
+        .edit-modal-sheet { background: var(--surface); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; padding: 24px 20px 40px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); max-height: 90vh; overflow-y: auto; }
         .edit-modal-overlay.active .edit-modal-sheet { transform: translateY(0); }
         .edit-field-label { font-size: 0.78rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; display: block; }
         .edit-field-input { width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: var(--radius-md); font-size: 0.95rem; font-family: 'Inter', sans-serif; font-weight: 500; background: #f8fafc; outline: none; box-sizing: border-box; transition: border-color 0.2s; }
         .edit-field-input:focus { border-color: var(--primary); background: white; }
         .section-title { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 28px; width: 100%; }
-        
-        .menu-card { display: flex; flex-direction: column; justify-content: space-between; padding: 20px 16px 16px; border-radius: var(--radius-lg); border: none; cursor: pointer; text-decoration: none; background: var(--surface); box-shadow: var(--shadow-sm); transition: var(--transition); position: relative; overflow: hidden; text-align: left; min-height: 110px; }
-        
-        .card-danger { background: linear-gradient(145deg, #ffffff, var(--danger-light)); border: 1px solid #fecaca; }
-        .card-success { background: linear-gradient(145deg, #ffffff, var(--success-light)); border: 1px solid #a7f3d0; }
-        .card-primary { background: linear-gradient(145deg, #ffffff, var(--primary-light)); border: 1px solid #bfdbfe; }
-        .card-warning { background: linear-gradient(145deg, #ffffff, var(--warning-light)); border: 1px solid #fde68a; }
-        .card-purple { background: linear-gradient(145deg, #ffffff, var(--purple-light)); border: 1px solid #ddd6fe; }
-        .card-cyan { background: linear-gradient(145deg, #ffffff, var(--cyan-light)); border: 1px solid #a5f3fc; }
-        .card-indigo { background: linear-gradient(145deg, #ffffff, var(--indigo-light)); border: 1px solid #c7d2fe; }
-        .card-teal { background: linear-gradient(145deg, #ffffff, var(--teal-light)); border: 1px solid #99f6e4; }
-        .card-sky { background: linear-gradient(145deg, #ffffff, var(--sky-light)); border: 1px solid #bae6fd; }
-        .card-coral { background: linear-gradient(145deg, #ffffff, var(--coral-light)); border: 1px solid #fecdd3; }
+        .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 28px; width: 100%; }
 
-        .menu-card:active { transform: scale(0.96); }
-        .menu-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-        
-        .card-icon-wrap { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 12px; background: white; box-shadow: var(--shadow-sm); }
-        .card-danger .card-icon-wrap { color: var(--danger); }
-        .card-success .card-icon-wrap { color: var(--success); }
-        .card-primary .card-icon-wrap { color: var(--primary); }
-        .card-warning .card-icon-wrap { color: var(--warning); }
-        .card-purple .card-icon-wrap { color: var(--purple); }
-        .card-cyan .card-icon-wrap { color: var(--cyan); }
-        .card-indigo .card-icon-wrap { color: var(--indigo); }
-        .card-teal .card-icon-wrap { color: var(--teal); }
-        .card-sky .card-icon-wrap { color: var(--sky); }
-        .card-coral .card-icon-wrap { color: var(--coral); }
-        
-        .menu-card h3 { margin: 0 0 4px 0; font-size: 0.95rem; font-weight: 700; color: var(--dark); }
-        .menu-card p { margin: 0; font-size: 0.75rem; color: var(--text-muted); font-weight: 600;}
-        .count-badge { position: absolute; top: 18px; right: 18px; font-size: 0.7rem; font-weight: 800; background: rgba(0,0,0,0.05); padding: 4px 8px; border-radius: 10px; color: var(--text-main); }
+        .menu-card { display: flex; flex-direction: column; justify-content: space-between; padding: 16px 14px 14px; border-radius: 18px; border: none; cursor: pointer; text-decoration: none; background: var(--surface); box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04); transition: transform 0.18s cubic-bezier(.4,0,.2,1), box-shadow 0.18s ease; position: relative; overflow: hidden; text-align: left; min-height: 108px; -webkit-tap-highlight-color: rgba(0,0,0,0.05); }
+        .menu-card .card-arrow { position: absolute; bottom: 12px; right: 12px; font-size: 0.8rem; color: rgba(0,0,0,0.18); transition: transform 0.15s ease, color 0.15s; }
+        .menu-card:active .card-arrow { transform: translateX(2px); color: rgba(0,0,0,0.3); }
+        .menu-card:active { transform: scale(0.97); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .menu-card::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0) 60%); pointer-events:none; }
 
+        .card-danger  { background: linear-gradient(150deg, #fff5f5, #ffe4e6); border: 1.5px solid #fdcaca; }
+        .card-success { background: linear-gradient(145deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; }
+        .card-primary { background: linear-gradient(145deg, #eff6ff, #dbeafe); border: 1.5px solid #93c5fd; }
+        .card-warning { background: linear-gradient(145deg, #fffbeb, #fef3c7); border: 1.5px solid #fcd34d; }
+        .card-purple  { background: linear-gradient(145deg, #faf5ff, #ede9fe); border: 1.5px solid #c4b5fd; }
+        .card-cyan    { background: linear-gradient(145deg, #ecfeff, #cffafe); border: 1.5px solid #67e8f9; }
+        .card-indigo  { background: linear-gradient(145deg, #eef2ff, #e0e7ff); border: 1.5px solid #a5b4fc; }
+        .card-teal    { background: linear-gradient(145deg, #f0fdfa, #ccfbf1); border: 1.5px solid #5eead4; }
+        .card-sky     { background: linear-gradient(145deg, #f0f9ff, #e0f2fe); border: 1.5px solid #7dd3fc; }
+        .card-coral   { background: linear-gradient(145deg, #fff1f2, #ffe4e6); border: 1.5px solid #fda4af; }
+        .card-dark    { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1.5px solid #334155; }
+        .card-dark h3, .card-dark p { color: white !important; }
+        .card-dark .card-icon-wrap { background: rgba(255,255,255,0.1); }
+
+        .menu-card:active  { transform: scale(0.96); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .menu-card:hover   { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+
+        .card-icon-wrap { width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 1.55rem; margin-bottom: 10px; background: rgba(255,255,255,0.75); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card-danger .card-icon-wrap  { color: var(--danger);  background: rgba(255,255,255,0.85); }
+        .card-success .card-icon-wrap { color: var(--success); background: rgba(255,255,255,0.85); }
+        .card-primary .card-icon-wrap { color: var(--primary); background: rgba(255,255,255,0.85); }
+        .card-warning .card-icon-wrap { color: var(--warning); background: rgba(255,255,255,0.85); }
+        .card-purple .card-icon-wrap  { color: var(--purple);  background: rgba(255,255,255,0.85); }
+        .card-cyan .card-icon-wrap    { color: var(--cyan);    background: rgba(255,255,255,0.85); }
+        .card-indigo .card-icon-wrap  { color: var(--indigo);  background: rgba(255,255,255,0.85); }
+        .card-teal .card-icon-wrap    { color: var(--teal);    background: rgba(255,255,255,0.85); }
+        .card-sky .card-icon-wrap     { color: var(--sky);     background: rgba(255,255,255,0.85); }
+        .card-coral .card-icon-wrap   { color: var(--coral);   background: rgba(255,255,255,0.85); }
+
+        .menu-card h3 { margin: 0 0 3px 0; font-size: 0.93rem; font-weight: 800; color: var(--dark); font-family: 'Outfit', sans-serif; letter-spacing: -0.2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+        .menu-card p  { margin: 0; font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+        .count-badge  { position: absolute; top: 12px; right: 12px; font-size: 0.68rem; font-weight: 900; background: rgba(0,0,0,0.08); padding: 3px 8px; border-radius: 20px; color: var(--text-main); letter-spacing: 0.3px; }
+
+        /* Section title pill style */
+        .section-pill { display: inline-flex; align-items: center; gap: 7px; background: var(--dark); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .section-pill.pill-blue   { background: linear-gradient(135deg, #3b82f6, #6366f1); }
+        .section-pill.pill-green  { background: linear-gradient(135deg, #10b981, #0d9488); }
+        .section-pill.pill-amber  { background: linear-gradient(135deg, #f59e0b, #f97316); }
+        .section-pill.pill-violet { background: linear-gradient(135deg, #8b5cf6, #6366f1); }
+        .section-pill.pill-folder { background: linear-gradient(135deg, #1e293b, #334155); }
+        .section-pill.pill-red    { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+
+
+        /* ── NEW DASHBOARD COMPONENTS ─────────────────────────── */
+
+        /* Section label */
+        .db-section-label { display:flex;align-items:center;gap:7px;font-family:'Outfit',sans-serif;font-size:0.72rem;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;padding-left:2px; }
+        .db-section-label i { font-size:0.85rem;color:var(--primary); }
+
+        /* Full-width alert card (Out of Stock) */
+        .db-alert-card { display:flex;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border-radius:18px;padding:16px 20px;margin-bottom:10px;cursor:pointer;box-shadow:0 4px 16px rgba(239,68,68,0.3);transition:transform 0.15s ease,box-shadow 0.15s ease; }
+        .db-alert-card:active { transform:scale(0.97);box-shadow:0 2px 8px rgba(239,68,68,0.2); }
+
+        /* 3-col mini cards */
+        .db-mini-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:9px; }
+        .db-mini-card { background:var(--mcl,#f8fafc);border:1.5px solid color-mix(in srgb,var(--mc,#64748b) 25%,white);border-radius:16px;padding:14px 10px 12px;text-align:center;cursor:pointer;transition:transform 0.15s ease;display:flex;flex-direction:column;align-items:center;gap:6px; }
+        .db-mini-card:active { transform:scale(0.95); }
+        .db-mini-icon { font-size:1.5rem;color:var(--mc,#64748b); }
+        .db-mini-label { font-size:0.68rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.5px; }
+        .db-mini-count { font-size:1.1rem;font-weight:900;color:var(--mc,#1e293b);font-family:'Outfit',sans-serif;line-height:1; }
+
+        /* Diagnostics 4-col icon grid */
+        .db-diag-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:9px; }
+        .db-diag-card { background:var(--dl,#f8fafc);border:1.5px solid var(--db,#e2e8f0);border-radius:16px;padding:13px 8px 11px;text-align:center;cursor:pointer;transition:transform 0.15s ease;display:flex;flex-direction:column;align-items:center;gap:5px; }
+        .db-diag-card:active { transform:scale(0.93); }
+        .db-diag-icon { width:36px;height:36px;border-radius:11px;background:white;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--dc,#64748b);box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+        .db-diag-name { font-size:0.65rem;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.3px; }
+        .db-diag-count { font-size:0.85rem;font-weight:900;color:var(--dc,#1e293b);font-family:'Outfit',sans-serif;line-height:1; }
+
+        /* Engineering Tools 4-col button grid */
+        .db-tools-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:9px; }
+        .db-tool-btn { background:white;border:1.5px solid #e2e8f0;border-radius:16px;padding:14px 8px 12px;text-align:center;cursor:pointer;transition:transform 0.15s ease,background 0.15s ease;display:flex;flex-direction:column;align-items:center;gap:7px;box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+        .db-tool-btn:active { transform:scale(0.93);background:#f8fafc; }
+        .db-tool-btn i { font-size:1.5rem;color:var(--tc,#64748b); }
+        .db-tool-btn span { font-size:0.62rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.5px; }
+
+        /* Vault Drive 4-col folder grid */
+        .db-vault-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:9px; }
+        .db-vault-card { background:var(--vcg,#f8fafc);border:1.5px solid color-mix(in srgb,var(--vc,#64748b) 30%,white);border-radius:16px;padding:16px 8px 13px;text-align:center;cursor:pointer;transition:transform 0.15s ease;display:flex;flex-direction:column;align-items:center;gap:5px; }
+        .db-vault-card:active { transform:scale(0.93); }
+        .db-vault-icon { font-size:1.6rem;color:var(--vc,#64748b);margin-bottom:2px; }
+        .db-vault-name { font-size:0.7rem;font-weight:900;color:#1e293b;font-family:'Outfit',sans-serif; }
+        .db-vault-sub  { font-size:0.58rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.3px; }
+
+
+        @media (max-width: 400px) {
+            .db-diag-grid { grid-template-columns: repeat(3, 1fr); }
+            .db-mini-grid { grid-template-columns: repeat(3, 1fr); }
+            .db-tools-grid { grid-template-columns: repeat(4, 1fr); }
+            .db-vault-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 340px) {
+            .db-diag-grid { grid-template-columns: repeat(2, 1fr); }
+            .db-tools-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        /* Card load animation */
+        @keyframes cardFadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .dashboard > .menu-card {
+            animation: cardFadeUp 0.35s ease both;
+        }
+        .dashboard > .menu-card:nth-child(1) { animation-delay: 0.02s; }
+        .dashboard > .menu-card:nth-child(2) { animation-delay: 0.06s; }
+        .dashboard > .menu-card:nth-child(3) { animation-delay: 0.10s; }
+        .dashboard > .menu-card:nth-child(4) { animation-delay: 0.14s; }
+        .dashboard > .menu-card:nth-child(5) { animation-delay: 0.18s; }
+        .dashboard > .menu-card:nth-child(6) { animation-delay: 0.22s; }
+        .dashboard > .menu-card:nth-child(7) { animation-delay: 0.26s; }
+        .dashboard > .menu-card:nth-child(8) { animation-delay: 0.30s; }
+
+        /* ── END NEW DASHBOARD COMPONENTS ── */
+
+        /* ══ DB2 CREATIVE DASHBOARD COMPONENTS ══════════════════ */
+
+        /* Section label */
+        .db2-label { display:flex;align-items:center;gap:8px;font-family:'Outfit',sans-serif;font-size:0.65rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding-left:2px; }
+        .db2-label i { font-size:0.9rem;color:var(--primary); }
+
+        /* Hero Out of Stock banner */
+        .db2-hero { display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#dc2626,#ef4444 50%,#f97316);color:white;border-radius:20px;padding:18px 20px;margin-bottom:10px;cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,0.35);transition:transform 0.15s ease,box-shadow 0.15s ease; }
+        .db2-hero:active { transform:scale(0.97);box-shadow:0 2px 8px rgba(220,38,38,0.2); }
+        @keyframes pulse-ring { 0%{transform:scale(1);opacity:0.5;} 100%{transform:scale(2);opacity:0;} }
+
+        /* Location chips */
+        .db2-chips { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
+        .db2-chip { background:white;border:1.5px solid #e2e8f0;border-radius:16px;padding:12px 8px;text-align:center;cursor:pointer;transition:transform 0.15s ease;display:flex;flex-direction:column;align-items:center;gap:5px;box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+        .db2-chip:active { transform:scale(0.94); }
+        .db2-chip i { font-size:1.4rem;color:var(--cc,#64748b); }
+        .db2-chip-label { font-size:0.65rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.5px; }
+        .db2-chip-count { font-size:1.05rem;font-weight:900;color:var(--cc,#1e293b);font-family:'Outfit',sans-serif;line-height:1; }
+
+        /* 4-col icon tiles (Diagnostics + Tools) */
+        .db2-icon-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:8px; }
+        .db2-icon-tile { background:white;border-radius:16px;padding:12px 6px 10px;text-align:center;cursor:pointer;transition:transform 0.15s ease;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 1px 6px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04); }
+        .db2-icon-tile:active { transform:scale(0.92); }
+        .db2-tile-icon { width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;color:white;box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+        .db2-tile-name { font-size:0.63rem;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.3px;line-height:1; }
+        .db2-tile-count { font-size:0.82rem;font-weight:900;color:var(--ic,#1e293b);font-family:'Outfit',sans-serif;line-height:1; }
+
+        /* Vault Drive — full-color 2-col cards */
+        .db2-vault { display:grid;grid-template-columns:repeat(2,1fr);gap:10px; }
+        .db2-vault-card { border-radius:20px;padding:18px 16px 16px;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.15); }
+        .db2-vault-card::before { content:'';position:absolute;top:-20px;right:-20px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.1); }
+        .db2-vault-card:active { transform:scale(0.96);box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+        .db2-vault-name { font-family:'Outfit',sans-serif;font-size:1rem;font-weight:900;color:white;margin-top:6px;letter-spacing:-0.2px; }
+        .db2-vault-sub { font-size:0.68rem;font-weight:600;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:0.4px; }
+        .db2-vault-arrow { position:absolute;bottom:14px;right:14px;font-size:1rem;color:rgba(255,255,255,0.5); }
+
+        /* Entry animation for tiles */
+        @keyframes db2FadeUp { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+        .db2-icon-tile { animation:db2FadeUp 0.3s ease both; }
+        .db2-icon-tile:nth-child(1){animation-delay:0.03s;} .db2-icon-tile:nth-child(2){animation-delay:0.07s;}
+        .db2-icon-tile:nth-child(3){animation-delay:0.11s;} .db2-icon-tile:nth-child(4){animation-delay:0.15s;}
+        .db2-icon-tile:nth-child(5){animation-delay:0.19s;} .db2-icon-tile:nth-child(6){animation-delay:0.23s;}
+        .db2-icon-tile:nth-child(7){animation-delay:0.27s;} .db2-icon-tile:nth-child(8){animation-delay:0.31s;}
+        .db2-vault-card { animation:db2FadeUp 0.35s ease both; }
+        .db2-vault-card:nth-child(1){animation-delay:0.05s;} .db2-vault-card:nth-child(2){animation-delay:0.1s;}
+        .db2-vault-card:nth-child(3){animation-delay:0.15s;} .db2-vault-card:nth-child(4){animation-delay:0.2s;}
+
+        /* ══ END DB2 ══════════════════════════════════════════════ */
         /* Secondary View (Results, Drive, Calculators) */
         .view-header { position: sticky; top: 0; background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(12px); padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; z-index: 110; }
         .back-btn { background: var(--surface); color: var(--text-main); border: 1px solid #e2e8f0; padding: 10px 16px; border-radius: 30px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem; transition: var(--transition); box-shadow: var(--shadow-sm); }
@@ -319,15 +465,18 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         .local-search-icon { position: absolute; left: 32px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.1rem; }
 
         /* General Card */
-        .data-card { background: var(--surface); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0; cursor: pointer; transition: var(--transition); }
+        .data-card { background: var(--surface); border-radius: var(--radius-lg); padding: 16px 14px 16px 18px; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0; cursor: pointer; transition: var(--transition); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; display: flex; align-items: center; gap: 10px; }
         .data-card:active { transform: scale(0.98); background: #f8fafc; }
-        .data-title { font-weight: 800; color: var(--primary); font-size: 1.1rem; margin-bottom: 4px; font-family: 'Outfit', sans-serif; }
-        .data-sub { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; font-weight: 500; }
+        .data-card-body { flex: 1; min-width: 0; }
+        .data-title { font-weight: 800; color: var(--primary); font-size: 1.1rem; margin-bottom: 4px; font-family: 'Outfit', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .data-sub { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-edit-btn { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; border: none; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; cursor: pointer; transition: background 0.15s, transform 0.1s; -webkit-tap-highlight-color: transparent; }
+        .card-edit-btn:active { background: #dbeafe; transform: scale(0.92); }
 
         /* Modal Details */
-        #detailModal { opacity: 0; pointer-events: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 200; display: flex; flex-direction: column; justify-content: flex-end; transition: opacity 0.3s ease; }
+        #detailModal { opacity: 0; pointer-events: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 200; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; transition: opacity 0.3s ease; }
         #detailModal.active { opacity: 1; pointer-events: auto; }
-        .modal-sheet { background: var(--surface); width: 100%; max-height: 85vh; border-top-left-radius: 25px; border-top-right-radius: 25px; padding: 25px 20px; box-shadow: var(--shadow-float); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; }
+        .modal-sheet { background: var(--surface); width: 100%; max-width: 600px; max-height: 85vh; border-top-left-radius: 25px; border-top-right-radius: 25px; padding: 25px 20px; box-shadow: var(--shadow-float); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; }
         #detailModal.active .modal-sheet { transform: translateY(0); }
         .modal-drag-handle { width: 40px; height: 5px; background: #cbd5e1; border-radius: 5px; margin: -10px auto 20px auto; }
         .modal-body-scroll { overflow-y: auto; padding-right: 5px; }
@@ -387,28 +536,232 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
 <body onload="init()">
 
 <div id="app">
-    <!-- Part Action Sheet (hold menu) -->
-    <div class="part-action-overlay" id="partActionSheet" onclick="closePartAction(event)">
-        <div class="part-action-sheet">
-            <div style="width:40px; height:4px; background:#e2e8f0; border-radius:2px; margin:0 auto 16px;"></div>
-            <div id="partActionTitle" style="font-family:'Outfit'; font-weight:900; font-size:1rem; color:var(--dark); margin-bottom:16px; padding:0 4px;"></div>
-            <button class="part-action-btn edit" onclick="openEditFromAction()">
-                <i class="ph-fill ph-pencil-simple"></i> Edit Part
+    <!-- Home Dashboard -->
+    <main id="homeView" class="view-layer">
+        <header>
+            <div class="logo-container" style="margin-bottom:6px;">
+                <i class="ph-fill ph-database logo-icon"></i>
+                <h1 class="logo-text">Min's Database <span class="badge-pro">PRO</span></h1>
+            </div>
+            <div style="text-align:center; color:rgba(255,255,255,0.45); font-size:0.7rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; font-family:'Inter',sans-serif; margin-bottom:8px; position:relative; z-index:2;">Biomedical Engineering Field Database</div>
+        </header>
+
+        <div class="dashboard-container">
+            <!-- Search Bar -->
+            <div class="main-search-container" style="padding: 0; margin: 0 0 16px 0;">
+                <div class="search-wrapper" style="position:relative;">
+                    <i class="ph ph-magnifying-glass search-icon"></i>
+                    <input type="text" id="mainSearch" class="main-search-input" placeholder="Search parts, errors, S/N..." oninput="debounceSearch()" style="padding-right:70px;">
+                    <button onclick="openQRScanner()" style="position:absolute;right:36px;top:50%;transform:translateY(-50%);background:none;border:none;color:#6366f1;font-size:1.3rem;cursor:pointer;padding:4px;line-height:1;" title="Scan QR Code"><i class="ph-fill ph-qr-code"></i></button>
+                    <button id="mainSearchClear" onclick="clearMainSearch()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;padding:0;line-height:1;"><i class="ph-bold ph-x-circle"></i></button>
+                </div>
+            </div>
+
+            <!-- ── PART LOCATION ─────────────────────────────────── -->
+            <div class="section-pill pill-amber"><i class="ph-fill ph-package"></i> Part Location</div>
+            <div class="dashboard" style="margin-bottom:24px;">
+                <div onclick="openMode('out')" style="grid-column:span 2;display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;background:linear-gradient(145deg,#fff5f5,#ffe4e6);border:2px solid #fca5a5;box-shadow:0 3px 12px rgba(239,68,68,0.15);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(239,68,68,0.15);"><i class="ph-fill ph-siren" style="color:#dc2626;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#7f1d1d;margin-bottom:2px;">Out of Stock</div><div style="font-size:0.72rem;color:#b91c1c;font-weight:600;">Requires Reorder</div></div>
+                    <div id="b-out" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(239,68,68,0.15);padding:3px 8px;border-radius:20px;color:#dc2626;">0</div>
+                </div>
+                <div onclick="openMode('parts')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;background:linear-gradient(145deg,#eff6ff,#dbeafe);border:2px solid #93c5fd;box-shadow:0 3px 12px rgba(59,130,246,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(59,130,246,0.15);"><i class="ph-fill ph-package" style="color:#2563eb;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#1e3a8a;margin-bottom:2px;">602 Inventory</div><div style="font-size:0.72rem;color:#1d4ed8;font-weight:600;">Van Inventory</div></div>
+                    <div id="b-parts" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(59,130,246,0.15);padding:3px 8px;border-radius:20px;color:#2563eb;">0</div>
+                </div>
+                <div onclick="openMode('inv601')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;background:linear-gradient(145deg,#eef2ff,#e0e7ff);border:2px solid #a5b4fc;box-shadow:0 3px 12px rgba(99,102,241,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(99,102,241,0.15);"><i class="ph-fill ph-warehouse" style="color:#4f46e5;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#3730a3;margin-bottom:2px;">601 Inventory</div><div style="font-size:0.72rem;color:#4338ca;font-weight:600;">Location Inventory</div></div>
+                    <div id="b-inv601" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(99,102,241,0.15);padding:3px 8px;border-radius:20px;color:#4f46e5;">0</div>
+                </div>
+            </div>
+
+            <!-- ── UNIT LOCATION ──────────────────────────────────── -->
+            <div class="section-pill pill-blue"><i class="ph-fill ph-map-pin-area"></i> Unit Location</div>
+            <div class="dashboard" style="margin-bottom:24px;">
+                <div onclick="openMode('pan')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;background:linear-gradient(145deg,#f0fdf4,#dcfce7);border:2px solid #86efac;box-shadow:0 3px 12px rgba(16,185,129,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(16,185,129,0.18);"><i class="ph-fill ph-map-pin" style="color:#059669;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#064e3b;margin-bottom:2px;">Pan Locations</div><div style="font-size:0.72rem;color:#047857;font-weight:600;">Hospital Deployment</div></div>
+                    <div id="b-pan" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(16,185,129,0.15);padding:3px 8px;border-radius:20px;color:#059669;">0</div>
+                </div>
+                <div onclick="openMode('blanket')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;background:linear-gradient(145deg,#fffbeb,#fef3c7);border:2px solid #fcd34d;box-shadow:0 3px 12px rgba(245,158,11,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(245,158,11,0.18);"><i class="ph-fill ph-thermometer-hot" style="color:#d97706;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#78350f;margin-bottom:2px;">Blanket Warmer</div><div style="font-size:0.72rem;color:#b45309;font-weight:600;">Warmer Locations</div></div>
+                    <div id="b-blanket" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(245,158,11,0.15);padding:3px 8px;border-radius:20px;color:#d97706;">0</div>
+                </div>
+                <div onclick="openMode('washer')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;background:linear-gradient(145deg,#f0f9ff,#e0f2fe);border:2px solid #7dd3fc;box-shadow:0 3px 12px rgba(14,165,233,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(14,165,233,0.18);"><i class="ph-fill ph-drop-half" style="color:#0284c7;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#0c4a6e;margin-bottom:2px;">Med Washer</div><div style="font-size:0.72rem;color:#0369a1;font-weight:600;">Washer Locations</div></div>
+                    <div id="b-washer" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(14,165,233,0.15);padding:3px 8px;border-radius:20px;color:#0284c7;">0</div>
+                </div>
+                <div onclick="openMode('dryer')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;background:linear-gradient(145deg,#f0fdfa,#ccfbf1);border:2px solid #5eead4;box-shadow:0 3px 12px rgba(13,148,136,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(13,148,136,0.18);"><i class="ph-fill ph-wind" style="color:#0d9488;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#134e4a;margin-bottom:2px;">Med Dryer</div><div style="font-size:0.72rem;color:#0f766e;font-weight:600;">Dryer Locations</div></div>
+                    <div id="b-dryer" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(13,148,136,0.15);padding:3px 8px;border-radius:20px;color:#0d9488;">0</div>
+                </div>
+                <div onclick="openMode('sterilizer')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;background:linear-gradient(145deg,#faf5ff,#ede9fe);border:2px solid #c4b5fd;box-shadow:0 3px 12px rgba(139,92,246,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(139,92,246,0.18);"><i class="ph-fill ph-bacteria" style="color:#7c3aed;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#4c1d95;margin-bottom:2px;">Sterilizer</div><div style="font-size:0.72rem;color:#6d28d9;font-weight:600;">Sterilizer Locations</div></div>
+                    <div id="b-sterilizer" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(139,92,246,0.15);padding:3px 8px;border-radius:20px;color:#7c3aed;">0</div>
+                </div>
+                <div onclick="openMode('heatsealer')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;background:linear-gradient(145deg,#fff1f2,#ffe4e6);border:2px solid #fda4af;box-shadow:0 3px 12px rgba(244,63,94,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(244,63,94,0.18);"><i class="ph-fill ph-flame" style="color:#e11d48;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#881337;margin-bottom:2px;">Heat Sealer</div><div style="font-size:0.72rem;color:#be123c;font-weight:600;">Sealer Locations</div></div>
+                    <div id="b-heatsealer" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(244,63,94,0.15);padding:3px 8px;border-radius:20px;color:#e11d48;">0</div>
+                </div>
+            </div>
+
+            <!-- ── DIAGNOSTICS ────────────────────────────────────── -->
+            <div class="section-pill pill-red"><i class="ph-fill ph-stethoscope"></i> Diagnostics</div>
+            <div class="dashboard" style="margin-bottom:24px;">
+                <div onclick="openMode('bht')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#fffbeb,#fef3c7);border:2px solid #fcd34d;box-shadow:0 3px 12px rgba(245,158,11,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(245,158,11,0.18);"><i class="ph-fill ph-warning" style="color:#d97706;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#78350f;margin-bottom:2px;">BHT Codes</div><div style="font-size:0.72rem;color:#b45309;font-weight:600;">Error diagnostics</div></div>
+                    <div id="b-bht" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(245,158,11,0.15);padding:3px 8px;border-radius:20px;color:#d97706;">0</div>
+                </div>
+                <div onclick="openMode('gen5')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#faf5ff,#ede9fe);border:2px solid #c4b5fd;box-shadow:0 3px 12px rgba(139,92,246,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(139,92,246,0.18);"><i class="ph-fill ph-lightning" style="color:#7c3aed;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#4c1d95;margin-bottom:2px;">Gen 5 Alarms</div><div style="font-size:0.72rem;color:#6d28d9;font-weight:600;">Alarm database</div></div>
+                    <div id="b-gen5" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(139,92,246,0.15);padding:3px 8px;border-radius:20px;color:#7c3aed;">0</div>
+                </div>
+                <div onclick="openMode('tangent')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#ecfeff,#cffafe);border:2px solid #67e8f9;box-shadow:0 3px 12px rgba(6,182,212,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(6,182,212,0.18);"><i class="ph-fill ph-waves" style="color:#0891b2;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#164e63;margin-bottom:2px;">Tangent Faults</div><div style="font-size:0.72rem;color:#0e7490;font-weight:600;">Fault diagnostics</div></div>
+                    <div id="b-tan" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(6,182,212,0.15);padding:3px 8px;border-radius:20px;color:#0891b2;">0</div>
+                </div>
+                <div onclick="openMode('ken')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#fdf2f8,#fce7f3);border:2px solid #f9a8d4;box-shadow:0 3px 12px rgba(236,72,153,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(236,72,153,0.18);"><i class="ph-fill ph-bell-ringing" style="color:#db2777;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#831843;margin-bottom:2px;">Ken Alarms</div><div style="font-size:0.72rem;color:#be185d;font-weight:600;">Ken alarm database</div></div>
+                    <div id="b-ken" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(236,72,153,0.15);padding:3px 8px;border-radius:20px;color:#db2777;">0</div>
+                </div>
+                <div onclick="openMode('bandeli')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#f0f9ff,#e0f2fe);border:2px solid #7dd3fc;box-shadow:0 3px 12px rgba(14,165,233,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(14,165,233,0.18);"><i class="ph-fill ph-activity" style="color:#0284c7;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#0c4a6e;margin-bottom:2px;">Bandeli</div><div style="font-size:0.72rem;color:#0369a1;font-weight:600;">Bandeli Database</div></div>
+                    <div id="b-bandeli" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(14,165,233,0.15);padding:3px 8px;border-radius:20px;color:#0284c7;">0</div>
+                </div>
+                <div onclick="openMode('platypus')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#f0fdf4,#dcfce7);border:2px solid #86efac;box-shadow:0 3px 12px rgba(16,185,129,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(16,185,129,0.18);"><i class="ph-fill ph-drop" style="color:#059669;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#064e3b;margin-bottom:2px;">Platypus</div><div style="font-size:0.72rem;color:#047857;font-weight:600;">Platypus Database</div></div>
+                    <div id="b-platypus" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(16,185,129,0.15);padding:3px 8px;border-radius:20px;color:#059669;">0</div>
+                </div>
+                <div onclick="openMode('hippopotamus')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#eef2ff,#e0e7ff);border:2px solid #a5b4fc;box-shadow:0 3px 12px rgba(99,102,241,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(99,102,241,0.18);"><i class="ph-fill ph-wind" style="color:#4f46e5;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#3730a3;margin-bottom:2px;">Hippopotamus</div><div style="font-size:0.72rem;color:#4338ca;font-weight:600;">Hippo Database</div></div>
+                    <div id="b-hippo" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(99,102,241,0.15);padding:3px 8px;border-radius:20px;color:#4f46e5;">0</div>
+                </div>
+                <div onclick="openMode('pan_alarms')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#fff7ed,#ffedd5);border:2px solid #fdba74;box-shadow:0 3px 12px rgba(234,88,12,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(234,88,12,0.18);"><i class="ph-fill ph-siren" style="color:#ea580c;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#7c2d12;margin-bottom:2px;">Pan Alarms</div><div style="font-size:0.72rem;color:#9a3412;font-weight:600;">Pan error codes</div></div>
+                    <div id="b-pan-alarms" style="position:absolute;top:12px;right:12px;font-size:0.68rem;font-weight:900;background:rgba(234,88,12,0.15);padding:3px 8px;border-radius:20px;color:#ea580c;">0</div>
+                </div>
+            </div>
+
+            <!-- ── ENGINEERING TOOLS ──────────────────────────────── -->
+            <div class="section-pill pill-green"><i class="ph-fill ph-wrench"></i> Engineering Tools</div>
+            <div class="dashboard" style="margin-bottom:24px;">
+                <div onclick="openCalculator('temp')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#f0fdfa,#ccfbf1);border:2px solid #5eead4;box-shadow:0 3px 12px rgba(13,148,136,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(13,148,136,0.18);"><i class="ph-fill ph-thermometer" style="color:#0d9488;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#134e4a;margin-bottom:2px;">Temp Calc</div><div style="font-size:0.72rem;color:#0f766e;font-weight:600;">Avg calculations</div></div>
+                </div>
+                <div onclick="openCalculator('flow')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#f0f9ff,#e0f2fe);border:2px solid #7dd3fc;box-shadow:0 3px 12px rgba(14,165,233,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(14,165,233,0.18);"><i class="ph-fill ph-drop" style="color:#0284c7;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#0c4a6e;margin-bottom:2px;">Flow Meter</div><div style="font-size:0.72rem;color:#0369a1;font-weight:600;">Vol / Time calcs</div></div>
+                </div>
+                <div onclick="openCalculator('time')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#f8faff,#e8edff);border:2px solid #b3bcf5;box-shadow:0 3px 12px rgba(79,70,229,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(79,70,229,0.15);"><i class="ph-fill ph-clock" style="color:#4f46e5;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#3730a3;margin-bottom:2px;">Time Calc</div><div style="font-size:0.72rem;color:#4338ca;font-weight:600;">Duration &amp; intervals</div></div>
+                </div>
+                <div onclick="openCalculator('f0a0')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#f0fdf4,#dcfce7);border:2px solid #86efac;box-shadow:0 3px 12px rgba(16,185,129,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(16,185,129,0.18);"><i class="ph-fill ph-flask" style="color:#059669;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#064e3b;margin-bottom:2px;">F0 &amp; A0</div><div style="font-size:0.72rem;color:#047857;font-weight:600;">Sterilization values</div></div>
+                </div>
+                <div onclick="openCalculator('ohms')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#fefce8,#fef9c3);border:2px solid #fde047;box-shadow:0 3px 12px rgba(234,179,8,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(234,179,8,0.18);"><i class="ph-fill ph-lightning" style="color:#ca8a04;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#713f12;margin-bottom:2px;">Ohms Calc</div><div style="font-size:0.72rem;color:#a16207;font-weight:600;">Electrical Values</div></div>
+                </div>
+                <div onclick="openCalculator('dose')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#fdf2f8,#fce7f3);border:2px solid #f9a8d4;box-shadow:0 3px 12px rgba(236,72,153,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(236,72,153,0.18);"><i class="ph-fill ph-eyedropper-sample" style="color:#db2777;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#831843;margin-bottom:2px;">Dose Check</div><div style="font-size:0.72rem;color:#be185d;font-weight:600;">Volume &amp; Ratio</div></div>
+                </div>
+                <div onclick="openCalculator('ratio')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#eff6ff,#dbeafe);border:2px solid #93c5fd;box-shadow:0 3px 12px rgba(59,130,246,0.12);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(59,130,246,0.18);"><i class="ph-fill ph-arrows-left-right" style="color:#2563eb;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#1e3a8a;margin-bottom:2px;">Fluid Ratio</div><div style="font-size:0.72rem;color:#1d4ed8;font-weight:600;">Convert Litres</div></div>
+                </div>
+                <div onclick="openPasswordGen()" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#1e293b,#0f172a);border:2px solid #334155;box-shadow:0 3px 12px rgba(15,23,42,0.25);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(255,255,255,0.1);"><i class="ph-fill ph-key" style="color:#94a3b8;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#e2e8f0;margin-bottom:2px;">Password Gen</div><div style="font-size:0.72rem;color:#94a3b8;font-weight:600;">Codes &amp; Web Links</div></div>
+                </div>
+            </div>
+
+            <!-- ── VAULT DRIVE ────────────────────────────────────── -->
+            <div class="section-pill pill-folder"><i class="ph-fill ph-folder-open"></i> Vault Drive</div>
+            <div class="dashboard" style="margin-bottom:50px;">
+                <div onclick="openDrive('inductions')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#fff7ed,#ffedd5);border:2px solid #fb923c;box-shadow:0 3px 14px rgba(234,88,12,0.18);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(234,88,12,0.18);"><i class="ph-fill ph-certificate" style="color:#ea580c;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#7c2d12;margin-bottom:2px;display:flex;align-items:center;gap:5px;"><i class="ph-fill ph-folder-simple" style="color:#ea580c;font-size:0.9rem;"></i> Permits</div><div style="font-size:0.72rem;color:#9a3412;font-weight:600;">Inductions &amp; certs</div></div>
+                </div>
+                <div onclick="openDrive('general')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#eff6ff,#dbeafe);border:2px solid #60a5fa;box-shadow:0 3px 14px rgba(37,99,235,0.15);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(37,99,235,0.18);"><i class="ph-fill ph-info" style="color:#2563eb;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#1e3a8a;margin-bottom:2px;display:flex;align-items:center;gap:5px;"><i class="ph-fill ph-folder-simple" style="color:#2563eb;font-size:0.9rem;"></i> Gen Info</div><div style="font-size:0.72rem;color:#1d4ed8;font-weight:600;">General documents</div></div>
+                </div>
+                <div onclick="openDrive('iqoq')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#f0fdf4,#d1fae5);border:2px solid #34d399;box-shadow:0 3px 14px rgba(5,150,105,0.15);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(5,150,105,0.18);"><i class="ph-fill ph-clipboard-text" style="color:#059669;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#064e3b;margin-bottom:2px;display:flex;align-items:center;gap:5px;"><i class="ph-fill ph-folder-simple" style="color:#059669;font-size:0.9rem;"></i> IQOQ</div><div style="font-size:0.72rem;color:#065f46;font-weight:600;">Qualification docs</div></div>
+                </div>
+                <div onclick="openDrive('manuals')" style="display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px 14px;border-radius:18px;cursor:pointer;touch-action:manipulation;user-select:none;background:linear-gradient(145deg,#f5f3ff,#ede9fe);border:2px solid #a78bfa;box-shadow:0 3px 14px rgba(109,40,217,0.15);position:relative;overflow:hidden;min-height:108px;">
+                    <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.55rem;background:rgba(109,40,217,0.18);"><i class="ph-fill ph-book-open-text" style="color:#7c3aed;"></i></div>
+                    <div><div style="font-family:'Outfit',sans-serif;font-size:0.93rem;font-weight:800;color:#3b0764;margin-bottom:2px;display:flex;align-items:center;gap:5px;"><i class="ph-fill ph-folder-simple" style="color:#7c3aed;font-size:0.9rem;"></i> Manuals</div><div style="font-size:0.72rem;color:#5b21b6;font-weight:600;">Service &amp; user manuals</div></div>
+                </div>
+            </div>
+                <div style="text-align:center; padding: 18px 0 28px; color:#cbd5e1; font-size:0.65rem; font-family:'Inter',sans-serif; font-weight:600; letter-spacing:2px; text-transform:uppercase; user-select:none;">
+            MIN'S DATABASE PRO &nbsp;&middot;&nbsp; Rev 3.8.1 &nbsp;&middot;&nbsp; Apr 2026
+        </div>
+    </main>
+
+    <!-- Secondary View Container -->
+    <div id="secondaryView" class="view-layer">
+        <div class="view-header" style="flex-direction:column; align-items:stretch; gap:0;">
+            <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                <button class="back-btn" onclick="closeSecondary()"><i class="ph-bold ph-arrow-left"></i> Home</button>
+                <h2 id="secTitle" class="view-title">Results</h2>
+                <button id="addNewBtn" style="display:none; background:var(--primary); color:white; border:none; border-radius:30px; padding:8px 16px; font-weight:800; font-size:0.85rem; cursor:pointer; font-family:'Inter',sans-serif; align-items:center; gap:5px;" onclick="handleAddNew()"><i class="ph-bold ph-plus"></i> Add</button>
+            </div>
+            <div id="localSearchWrapper" class="local-search-container" style="display:none; position:relative; width:100%;">
+                <i class="ph ph-magnifying-glass local-search-icon" style="left:12px;"></i>
+                <input type="text" id="localSearch" class="local-search-input" placeholder="Search this section..." oninput="debounceLocalSearch()">
+                <button id="localSearchClear" onclick="clearLocalSearch()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;padding:0;line-height:1;"><i class="ph-bold ph-x-circle"></i></button>
+            </div>
+        </div>
+        <div id="secContent" class="sec-container"></div>
+    </div>
+</div>
+
+
+
+
+
+<div class="part-action-overlay" id="partActionSheet" onclick="closePartAction(event)">
+        <div class="part-action-sheet" onclick="event.stopPropagation()">
+            <div style="width:40px; height:5px; background:#e2e8f0; border-radius:3px; margin:0 auto 16px;"></div>
+            <div id="partActionTitle" style="font-family:'Outfit', sans-serif; font-weight:800; font-size:0.95rem; color:var(--dark); margin-bottom:20px; padding:0 10px; text-align:center; word-break: break-word; line-height: 1.3;"></div>
+            
+            <button class="part-action-btn edit" onclick="openEditFromAction()" style="background:#eff6ff; color:#2563eb; justify-content:center;">
+                <i class="ph-fill ph-pencil-simple" style="margin-right: -4px;"></i> Edit Part
             </button>
-            <button class="part-action-btn del" onclick="deleteFromAction()">
-                <i class="ph-fill ph-trash"></i> Delete Part
+            <button class="part-action-btn del" onclick="deleteFromAction()" style="background:#fef2f2; color:#dc2626; justify-content:center;">
+                <i class="ph-fill ph-trash" style="margin-right: -4px;"></i> Delete Part
             </button>
-            <button class="part-action-btn" onclick="closePartAction()" style="margin-bottom:0; color:var(--text-muted);">
-                <i class="ph-fill ph-x"></i> Cancel
+            <button class="part-action-btn" onclick="closePartAction()" style="margin-bottom:0; color:#64748b; background:transparent; justify-content:center;">
+                <i class="ph-fill ph-x" style="margin-right: -4px;"></i> Cancel
             </button>
         </div>
     </div>
 
-    <!-- Edit Part Form -->
-    <div class="edit-modal-overlay" id="editPartModal" onclick="closeEditModal(event)">
+<div class="edit-modal-overlay" id="editPartModal" onclick="closeEditModal(event)">
         <div class="edit-modal-sheet">
             <div style="width:40px; height:4px; background:#e2e8f0; border-radius:2px; margin:0 auto 20px;"></div>
-            <h3 style="font-family:'Outfit'; font-weight:900; margin:0 0 20px; color:var(--dark);"><i class="ph-fill ph-pencil-simple" style="color:var(--primary);"></i> Edit Part</h3>
+            <h3 id="editPartModalTitle" style="font-family:'Outfit'; font-weight:900; margin:0 0 20px; color:var(--dark);"><i class="ph-fill ph-pencil-simple" style="color:var(--primary);"></i> Edit Part</h3>
             <div style="margin-bottom:14px;">
                 <label class="edit-field-label">Part ID</label>
                 <input id="edit-partid" class="edit-field-input" type="text" placeholder="Part ID">
@@ -429,11 +782,11 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
                 <button class="btn btn-secondary" style="flex:1;" onclick="closeEditModal()">Cancel</button>
                 <button class="btn btn-primary" style="flex:2;" onclick="savePartEdit()"><i class="ph-bold ph-floppy-disk"></i> Save Changes</button>
             </div>
+            <button class="btn" id="deletePartBtn" style="width:100%; margin-top:12px; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; font-weight:700; display:none;" onclick="deletePartFromModal()"><i class="ph-fill ph-trash"></i> Delete Record</button>
         </div>
     </div>
 
-    <!-- Pan Location Edit Form -->
-    <div class="edit-modal-overlay" id="editPanModal" onclick="closePanEditModal(event)">
+<div class="edit-modal-overlay" id="editPanModal" onclick="closePanEditModal(event)">
         <div class="edit-modal-sheet">
             <div style="width:40px; height:4px; background:#e2e8f0; border-radius:2px; margin:0 auto 20px;"></div>
             <h3 style="font-family:'Outfit'; font-weight:900; margin:0 0 20px; color:var(--dark);"><i class="ph-fill ph-map-pin" style="color:var(--success);"></i> Edit Pan Location</h3>
@@ -462,185 +815,19 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
                 <input id="pan-room" class="edit-field-input" type="text" placeholder="e.g. Dirty Utility">
             </div>
             <div style="margin-bottom:24px;">
-                <label class="edit-field-label">Comments</label>
+                <label class="edit-field-label" style="display:flex; justify-content:space-between; align-items:center;">
+                    Comments
+                    <button type="button" onclick="openFullscreenFromEdit()" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:1.1rem; padding:0;"><i class="ph-bold ph-arrows-out-simple"></i></button>
+                </label>
                 <input id="pan-comments" class="edit-field-input" type="text" placeholder="Access notes, PINs, etc.">
             </div>
             <div style="display:flex; gap:10px;">
                 <button class="btn btn-secondary" style="flex:1;" onclick="closePanEditModal()">Cancel</button>
                 <button class="btn btn-primary" style="flex:2;" onclick="savePanEdit()"><i class="ph-bold ph-floppy-disk"></i> Save Changes</button>
             </div>
+            <button class="btn" id="deletePanBtn" style="width:100%; margin-top:12px; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; font-weight:700; display:none;" onclick="deletePanOrEqFromModal()"><i class="ph-fill ph-trash"></i> Delete Record</button>
         </div>
     </div>
-
-    <!-- Home Dashboard -->
-    <main id="homeView" class="view-layer">
-        <header>
-            <div class="logo-container">
-                <i class="ph-fill ph-database logo-icon"></i>
-                <h1 class="logo-text">Min's Database <span class="badge-pro">PRO</span></h1>
-            </div>
-        </header>
-
-        <div class="dashboard-container">
-            <div class="main-search-container" style="padding: 0; margin: 0 0 20px 0;">
-                <div class="search-wrapper" style="position:relative;">
-                    <i class="ph ph-magnifying-glass search-icon"></i>
-                    <input type="text" id="mainSearch" class="main-search-input" placeholder="Search parts, errors, S/N..." oninput="handleGlobalSearch()" style="padding-right:70px;">
-                    <button onclick="openQRScanner()" style="position:absolute;right:36px;top:50%;transform:translateY(-50%);background:none;border:none;color:#6366f1;font-size:1.3rem;cursor:pointer;padding:4px;line-height:1;" title="Scan QR Code"><i class="ph-fill ph-qr-code"></i></button>
-                    <button id="mainSearchClear" onclick="clearMainSearch()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;padding:0;line-height:1;"><i class="ph-bold ph-x-circle"></i></button>
-                </div>
-            </div>
-            <!-- Daily Bible Verse -->
-            <div id="dailyVerseCard" style="background:linear-gradient(135deg,#1e293b,#312e81);border-radius:16px;padding:14px 16px;margin-bottom:20px;position:relative;overflow:hidden;">
-                <div style="position:absolute;top:-10px;right:-10px;font-size:5rem;opacity:0.06;color:white;font-family:serif;line-height:1;">“</div>
-                <div style="font-size:0.6rem;font-weight:800;color:#a5b4fc;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-                    <i class="ph-fill ph-book-open"></i> Verse of the Day
-                </div>
-                <div id="dailyVerseText" style="color:white;font-size:0.88rem;line-height:1.6;font-family:'Inter',sans-serif;font-style:italic;margin-bottom:6px;"></div>
-                <div id="dailyVerseRef" style="color:#a5b4fc;font-size:0.72rem;font-weight:700;font-family:'Outfit',sans-serif;letter-spacing:0.5px;text-align:right;"></div>
-            </div>
-            <h2 class="section-title"><span><i class="ph-fill ph-map-trifold"></i> Location</span></h2>
-            <div class="dashboard" style="margin-bottom:25px;">
-                <div class="menu-card card-danger" onclick="openMode('out')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-siren"></i></div>
-                    <h3>Out of Stock</h3><p>Requires Reorder</p>
-                    <div class="count-badge" id="b-out">0</div>
-                </div>
-                <div class="menu-card card-primary" onclick="openMode('parts')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-package"></i></div>
-                    <h3>602 Inventory</h3><p>Van Inventory</p>
-                    <div class="count-badge" id="b-parts">0</div>
-                </div>
-                <div class="menu-card card-success" onclick="openMode('pan')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-map-pin"></i></div>
-                    <h3>Pan Locations</h3><p>Hospital Deployment</p>
-                    <div class="count-badge" id="b-pan">0</div>
-                </div>
-                <div class="menu-card card-indigo" onclick="openMode('inv601')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-warehouse"></i></div>
-                    <h3>601 Inventory</h3><p>Location Inventory</p>
-                    <div class="count-badge" id="b-inv601">0</div>
-                </div>
-            </div>
-
-            <h2 class="section-title"><span><i class="ph-fill ph-stethoscope"></i> Diagnostics</span></h2>
-            <div class="dashboard">
-                <div class="menu-card card-warning" onclick="openMode('bht')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-warning"></i></div>
-                    <h3>BHT Codes</h3><p>Error diagnostics</p>
-                    <div class="count-badge" id="b-bht">0</div>
-                </div>
-                <div class="menu-card card-purple" onclick="openMode('gen5')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-lightning"></i></div>
-                    <h3>Gen 5 Alarms</h3><p>Alarm database</p>
-                    <div class="count-badge" id="b-gen5">0</div>
-                </div>
-                <div class="menu-card card-cyan" onclick="openMode('tangent')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-waves"></i></div>
-                    <h3>Tangent Faults</h3><p>Fault diagnostics</p>
-                    <div class="count-badge" id="b-tan">0</div>
-                </div>
-                <div class="menu-card card-coral" onclick="openMode('ken')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-bell-ringing"></i></div>
-                    <h3>Ken Alarms</h3><p>Ken alarm database</p>
-                    <div class="count-badge" id="b-ken">0</div>
-                </div>
-                <div class="menu-card card-danger" onclick="openMode('bandeli')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-activity"></i></div>
-                    <h3>Bandeli</h3><p>Bandeli Database</p>
-                    <div class="count-badge" id="b-bandeli">0</div>
-                </div>
-                <div class="menu-card card-success" onclick="openMode('platypus')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-drop"></i></div>
-                    <h3>Platypus</h3><p>Platypus Database</p>
-                    <div class="count-badge" id="b-platypus">0</div>
-                </div>
-                <div class="menu-card card-primary" onclick="openMode('hippopotamus')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-wind"></i></div>
-                    <h3>Hippopotamus</h3><p>Hippo Database</p>
-                    <div class="count-badge" id="b-hippo">0</div>
-                </div>
-                <div class="menu-card card-warning" onclick="openMode('pan_alarms')">
-                    <div class="card-icon-wrap"><i class="ph-fill ph-bell-ringing"></i></div>
-                    <h3>Pan Alarms</h3><p>Pan error code database</p>
-                    <div class="count-badge" id="b-pan-alarms">0</div>
-                </div>
-            </div>
-            
-            <h2 class="section-title"><span><i class="ph-fill ph-calculator"></i> Engineering Tools</span></h2>
-            <div class="dashboard">
-                <div class="menu-card card-teal" onclick="openCalculator('temp')">
-                    <div class="card-icon-wrap" style="color:var(--teal)"><i class="ph-fill ph-thermometer"></i></div>
-                    <h3>Temp Calculator</h3><p>Avg calculations</p>
-                </div>
-                <div class="menu-card card-sky" onclick="openCalculator('flow')">
-                    <div class="card-icon-wrap" style="color:var(--sky)"><i class="ph-fill ph-drop"></i></div>
-                    <h3>Flow Meter</h3><p>Vol/Time calcs</p>
-                </div>
-                <div class="menu-card card-indigo" onclick="openCalculator('time')">
-                    <div class="card-icon-wrap" style="color:var(--indigo)"><i class="ph-fill ph-clock"></i></div>
-                    <h3>Time Calculator</h3><p>Duration & intervals</p>
-                </div>
-                <div class="menu-card card-coral" onclick="openCalculator('f0a0')" style="background: linear-gradient(145deg, #ffffff, #dcfce7); border-color:#86efac;">
-                    <div class="card-icon-wrap" style="color:var(--success)"><i class="ph-fill ph-flask"></i></div>
-                    <h3>F0 & A0 Calc</h3><p>Sterilization values</p>
-                </div>
-                <div class="menu-card card-purple" onclick="openCalculator('ohms')">
-                    <div class="card-icon-wrap" style="color:var(--purple)"><i class="ph-fill ph-lightning"></i></div>
-                    <h3>Ohms Calc</h3><p>Electrical Values</p>
-                </div>
-                <div class="menu-card card-warning" onclick="openCalculator('dose')">
-                    <div class="card-icon-wrap" style="color:var(--warning)"><i class="ph-fill ph-eyedropper-sample"></i></div>
-                    <h3>Dose Check</h3><p>Volume & Ratio</p>
-                </div>
-                <div class="menu-card card-primary" onclick="openCalculator('ratio')">
-                    <div class="card-icon-wrap" style="color:var(--primary)"><i class="ph-fill ph-arrows-left-right"></i></div>
-                    <h3>Fluid Ratio</h3><p>Convert Litres</p>
-                </div>
-                <div class="menu-card" onclick="openPasswordGen()" style="background:linear-gradient(145deg,#fff,#f0fdf4); border:1px solid #86efac;">
-                    <div class="card-icon-wrap" style="color:#16a34a"><i class="ph-fill ph-key"></i></div>
-                    <h3>Password Gen</h3><p>Codes &amp; Web Links</p>
-                </div>
-            </div>
-
-            <h2 class="section-title" style="margin-top:20px;"><span><i class="ph-fill ph-folder-open"></i> Vault Drive</span></h2>
-            <div class="dashboard" style="margin-bottom:50px;">
-                <div class="menu-card card-primary" onclick="openDrive('inductions')" style="background:white; border: 1px solid #e2e8f0;">
-                    <h3 style="display:flex; align-items:center; gap:8px;"><i class="ph-fill ph-folder-simple" style="color:#f59e0b"></i> Permits</h3>
-                </div>
-                <div class="menu-card card-primary" onclick="openDrive('general')" style="background:white; border: 1px solid #e2e8f0;">
-                    <h3 style="display:flex; align-items:center; gap:8px;"><i class="ph-fill ph-folder-simple" style="color:#f59e0b"></i> Gen Info</h3>
-                </div>
-                <div class="menu-card card-primary" onclick="openDrive('iqoq')" style="background:white; border: 1px solid #e2e8f0;">
-                    <h3 style="display:flex; align-items:center; gap:8px;"><i class="ph-fill ph-folder-simple" style="color:#f59e0b"></i> IQOQ</h3>
-                </div>
-                <div class="menu-card card-primary" onclick="openDrive('manuals')" style="background:white; border: 1px solid #e2e8f0;">
-                    <h3 style="display:flex; align-items:center; gap:8px;"><i class="ph-fill ph-folder-simple" style="color:#f59e0b"></i> Manuals</h3>
-                </div>
-            </div>
-        </div>
-        <div style="text-align:center; padding: 18px 0 28px; color:#cbd5e1; font-size:0.65rem; font-family:'Inter',sans-serif; font-weight:600; letter-spacing:2px; text-transform:uppercase; user-select:none;">
-            MIN'S DATABASE PRO &nbsp;&middot;&nbsp; Rev 3.1.0 &nbsp;&middot;&nbsp; Apr 2026
-        </div>
-    </main>
-
-    <!-- Secondary View Container -->
-    <div id="secondaryView" class="view-layer">
-        <div class="view-header" style="flex-direction:column; align-items:stretch; gap:0;">
-            <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
-                <button class="back-btn" onclick="closeSecondary()"><i class="ph-bold ph-arrow-left"></i> Home</button>
-                <h2 id="secTitle" class="view-title">Results</h2>
-                <button id="addNewBtn" style="display:none; background:var(--primary); color:white; border:none; border-radius:30px; padding:8px 16px; font-weight:800; font-size:0.85rem; cursor:pointer; font-family:'Inter',sans-serif; align-items:center; gap:5px;" onclick="handleAddNew()"><i class="ph-bold ph-plus"></i> Add</button>
-            </div>
-            <div id="localSearchWrapper" class="local-search-container" style="display:none; position:relative; width:100%;">
-                <i class="ph ph-magnifying-glass local-search-icon" style="left:12px;"></i>
-                <input type="text" id="localSearch" class="local-search-input" placeholder="Search this section..." oninput="handleLocalSearch()">
-                <button id="localSearchClear" onclick="clearLocalSearch()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;padding:0;line-height:1;"><i class="ph-bold ph-x-circle"></i></button>
-            </div>
-        </div>
-        <div id="secContent" class="sec-container"></div>
-    </div>
-</div>
 
 <!-- Bottom Modal for Details -->
 <div id="detailModal" onclick="closeModal(event)">
@@ -656,6 +843,12 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
 <input type="file" id="vaultFileInput" accept="*/*" multiple style="display:none;" onchange="processVaultFiles(event)">
 
 <script>
+    // Shared action-state variables (declared at top to avoid TDZ)
+    var _actionTarget = null;
+    var _actionRowEl  = null;
+    var _actionMode   = '';
+    const HOLD_MS    = 800;
+
     // In actual usage, db is loaded from data.js. If missing, define fallback.
     if(typeof db === 'undefined') {
         window.db = { parts: [], bht: [], gen5: [], tangent: [], pan: [] };
@@ -2056,7 +2249,7 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
     let currentLocalList = [];
     let currentLocalMode = "";
 
-    const modeLabels = { out: 'Out of Stock', parts: '602 Inventory', pan: 'Pan Locations', pan_alarms: 'Pan Alarms', bht: 'BHT Codes', gen5: 'Gen 5 Alarms', tangent: 'Tangent Faults', ken: 'Ken Alarms', bandeli: 'Bandeli', platypus: 'Platypus', hippopotamus: 'Hippopotamus', inv601: '601 Inventory' };
+    const modeLabels = { out: 'Out of Stock', parts: '602 Inventory', pan: 'Pan Locations', pan_alarms: 'Pan Alarms', bht: 'BHT Codes', gen5: 'Gen 5 Alarms', tangent: 'Tangent Faults', ken: 'Ken Alarms', bandeli: 'Bandeli', platypus: 'Platypus', hippopotamus: 'Hippopotamus', inv601: '601 Inventory', blanket: 'Blanket Warmer Locations', washer: 'Medical Washer Locations', dryer: 'Medical Dryer Locations', sterilizer: 'Sterilizer Machine Locations', heatsealer: 'Heat Sealer Locations' };
 
     // ── Parts edit/delete persistence ────────────────────────────────
     let partsEdits = {};
@@ -2068,7 +2261,107 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
     let panEdits = {};
     let panDeleted = new Set();
     try { panEdits = JSON.parse(localStorage.getItem('mins_pan_edits')) || {}; } catch(e) {}
-    try { panDeleted = new Set(JSON.parse(localStorage.getItem('mins_pan_deleted')) || []); } catch(e) {}    
+    try { panDeleted = new Set(JSON.parse(localStorage.getItem('mins_pan_deleted')) || []); } catch(e) {}
+
+    // ── Equipment Location data (Blanket / Washer / Dryer / Sterilizer) ──
+    const EQ_MODES = ['blanket', 'washer', 'dryer', 'sterilizer', 'heatsealer', 'pan'];
+    const EQ_STORE_KEYS = { blanket: 'mins_blanket_locs', washer: 'mins_washer_locs', dryer: 'mins_dryer_locs', sterilizer: 'mins_sterilizer_locs', heatsealer: 'mins_heatsealer_locs', pan: 'mins_pan_locs' };
+    const EQ_DEL_KEYS   = { blanket: 'mins_blanket_del', washer: 'mins_washer_del', dryer: 'mins_dryer_del', sterilizer: 'mins_sterilizer_del', heatsealer: 'mins_heatsealer_del', pan: 'mins_pan_del' };
+    function loadEqData(mode) { try { return JSON.parse(localStorage.getItem(EQ_STORE_KEYS[mode])) || []; } catch(e) { return []; } }
+    function loadEqDeleted(mode) { try { return new Set(JSON.parse(localStorage.getItem(EQ_DEL_KEYS[mode])) || []); } catch(e) { return new Set(); } }
+    function saveEqData(mode) {
+        try { localStorage.setItem(EQ_STORE_KEYS[mode], JSON.stringify(db[mode] || [])); } catch(e) { console.warn('save eq failed', e); }
+        // Also persist the deleted-SNs set so base records stay gone after reload
+        try { localStorage.setItem(EQ_DEL_KEYS[mode], JSON.stringify([...(window._eqDeleted[mode] || new Set())])); } catch(e) {}
+    }
+    // Master deleted-SN registry for each EQ mode
+    window._eqDeleted = {};
+    EQ_MODES.forEach(function(m){ window._eqDeleted[m] = loadEqDeleted(m); });
+
+    // Populate db entries for eq modes
+    // Blanket: start from built-in base data, then merge any localStorage additions
+    (function(){
+        var extras = [];
+        try { extras = JSON.parse(localStorage.getItem(EQ_STORE_KEYS['blanket'])) || []; } catch(e) {}
+        if (extras.length > 0) { db.blanket = extras; }
+        var del = window._eqDeleted['blanket'];
+        db_blanket.forEach(function(base) {
+            if (!del.has(base['Unit S/N']) && !db.blanket.find(function(r){ return r['Unit S/N'] === base['Unit S/N']; })) {
+                db.blanket.push(base);
+            }
+        });
+    })();
+    // Washer: start from built-in base data, then merge any localStorage additions
+    (function(){
+        var extras = [];
+        try { extras = JSON.parse(localStorage.getItem(EQ_STORE_KEYS['washer'])) || []; } catch(e) {}
+        // extras stores the full array when user adds/edits; if it exists use it, otherwise fall back to base
+        if (extras.length > 0) {
+            db.washer = extras;
+        }
+        var del = window._eqDeleted['washer'];
+        db_washer.forEach(function(base) {
+            if (!del.has(base['Unit S/N']) && !db.washer.find(function(r){ return r['Unit S/N'] === base['Unit S/N']; })) {
+                db.washer.push(base);
+            }
+        });
+    })();
+    // Dryer: start from built-in base data, then merge any localStorage additions
+    (function(){
+        var extras = [];
+        try { extras = JSON.parse(localStorage.getItem(EQ_STORE_KEYS['dryer'])) || []; } catch(e) {}
+        if (extras.length > 0) {
+            db.dryer = extras;
+        }
+        var del = window._eqDeleted['dryer'];
+        db_dryer.forEach(function(base) {
+            if (!del.has(base['Unit S/N']) && !db.dryer.find(function(r){ return r['Unit S/N'] === base['Unit S/N']; })) {
+                db.dryer.push(base);
+            }
+        });
+    })();
+    // Sterilizer: start from built-in base data, then merge any localStorage additions
+    (function(){
+        var extras = [];
+        try { extras = JSON.parse(localStorage.getItem(EQ_STORE_KEYS['sterilizer'])) || []; } catch(e) {}
+        if (extras.length > 0) {
+            db.sterilizer = extras;
+        }
+        var del = window._eqDeleted['sterilizer'];
+        db_sterilizer.forEach(function(base) {
+            if (!del.has(base['Unit S/N']) && !db.sterilizer.find(function(r){ return r['Unit S/N'] === base['Unit S/N']; })) {
+                db.sterilizer.push(base);
+            }
+        });
+    })();
+    // Heat Sealer: start from built-in base data, then merge any localStorage additions
+    (function(){
+        var extras = [];
+        try { extras = JSON.parse(localStorage.getItem(EQ_STORE_KEYS['heatsealer'])) || []; } catch(e) {}
+        if (extras.length > 0) {
+            db.heatsealer = extras;
+        }
+        var del = window._eqDeleted['heatsealer'];
+        db_heatsealer.forEach(function(base) {
+            if (!del.has(base['Unit S/N']) && !db.heatsealer.find(function(r){ return r['Unit S/N'] === base['Unit S/N']; })) {
+                db.heatsealer.push(base);
+            }
+        });
+    })();
+    // Pan Location: eq-style persistence (same as blanket/washer)
+    (function(){
+        var saved = [];
+        try { saved = JSON.parse(localStorage.getItem('mins_pan_locs')) || []; } catch(e) {}
+        if (saved.length > 0) {
+            var del = window._eqDeleted ? (window._eqDeleted['pan'] || new Set()) : new Set();
+            db.pan = saved.filter(function(r) { return !del.has(r['Unit S/N']); });
+        }
+        // Otherwise db_pan base is used; applyPanOverrides() runs in init()
+    })();
+
+    let eqEditTarget = null;
+    let eqEditMode   = null;    
+
 
     function savePanOverrides() {
         try {
@@ -2078,22 +2371,34 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
     }
 
     function applyPanOverrides() {
+        var existingSNs = new Set();
         db.pan.forEach((p, i) => {
+            existingSNs.add(p['Unit S/N']);
             if (panEdits[p['Unit S/N']]) Object.assign(db.pan[i], panEdits[p['Unit S/N']]);
         });
+        for (var sn in panEdits) {
+            if (!existingSNs.has(sn)) {
+                db.pan.push(panEdits[sn]);
+            }
+        }
         if (panDeleted.size > 0) {
             window.db.pan = db.pan.filter(p => !panDeleted.has(p['Unit S/N']));
         }
     }
 
     function applyPartsOverrides() {
-        // Apply edits
+        // Apply edits — key is PartID::Location composite to handle duplicate PartIDs
         db.parts.forEach((p, i) => {
-            if (partsEdits[p.PartID]) Object.assign(db.parts[i], partsEdits[p.PartID]);
+            const key = (p.PartID || '') + '::' + (p.Location || '');
+            if (partsEdits[key]) {
+                const override = Object.assign({}, partsEdits[key]);
+                Object.assign(db.parts[i], override);
+            }
         });
-        // Remove deleted
+        // Remove deleted — composite key PartID::Location
         if (partsDeleted.size > 0) {
-            window.db.parts = db.parts.filter(p => !partsDeleted.has(p.PartID));
+            db.parts = db.parts.filter(p => !partsDeleted.has((p.PartID || '') + '::' + (p.Location || '')));
+            window.db.parts = db.parts;
             window.db.out = db.parts.filter(p => !p.Stock || parseInt(p.Stock) === 0);
         }
     }
@@ -2110,7 +2415,6 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         if (!masterDrive['general']) masterDrive['general'] = [];
         if (!masterDrive['iqoq']) masterDrive['iqoq'] = [];
         if (!masterDrive['manuals']) masterDrive['manuals'] = [];
-        applyPartsOverrides();
         applyPanOverrides();
 
         // Merge 602 base data into db.parts
@@ -2126,8 +2430,10 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
             }
         });
         
+        applyPartsOverrides();
+        
         document.getElementById('b-parts').innerText = db.parts.length || 0;
-        document.getElementById('b-out').innerText = (db.parts.filter(p => !p.Stock || parseInt(p.Stock) === 0).length) || 0;
+        document.getElementById('b-out').innerText = (db.parts.filter(p => p.hasOwnProperty('Stock') && (p.Stock === '' || p.Stock === null || p.Stock === undefined || parseInt(p.Stock) === 0)).length) || 0;
         document.getElementById('b-bht').innerText = db.bht.length || 0;
         document.getElementById('b-gen5').innerText = db.gen5.length || 0;
         document.getElementById('b-tan').innerText = db.tangent.length || 0;
@@ -2138,6 +2444,11 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         document.getElementById('b-hippo').innerText = db.hippopotamus.length || 0;
         document.getElementById('b-pan-alarms').innerText = db.pan_alarms.length || 0;
         document.getElementById('b-inv601').innerText = (window._inv601Data || []).length || 0;
+        document.getElementById('b-blanket').innerText    = (db.blanket    || []).length;
+        document.getElementById('b-washer').innerText     = (db.washer     || []).length;
+        document.getElementById('b-dryer').innerText      = (db.dryer      || []).length;
+        document.getElementById('b-sterilizer').innerText = (db.sterilizer || []).length;
+        document.getElementById('b-heatsealer').innerText  = (db.heatsealer  || []).length;
     }
 
     function openMode(mode, filterKey = null, filterValue = null) {
@@ -2148,7 +2459,8 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         // Show/hide Add button
         const addBtn = document.getElementById('addNewBtn');
         const diagModes = ['bht','gen5','tangent','ken','bandeli','platypus','hippopotamus','pan_alarms'];
-        if ((mode === 'parts' || mode === 'pan' || mode === 'inv601') && !filterValue) {
+        const eqModes = ['blanket','washer','dryer','sterilizer','heatsealer','pan'];
+        if (mode === 'parts' || mode === 'inv601' || mode === 'out' || eqModes.includes(mode)) {
             addBtn.style.display = 'flex';
             addBtn.innerHTML = '<i class="ph-bold ph-plus"></i> Add';
             addBtn.onclick = handleAddNew;
@@ -2162,7 +2474,7 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         }
         
         const backBtn = document.querySelector('.back-btn');
-        if (filterValue && ['bht', 'gen5', 'bandeli', 'platypus', 'hippopotamus', 'tangent', 'ken'].includes(mode)) {
+        if (filterValue && (['bht', 'gen5', 'bandeli', 'platypus', 'hippopotamus', 'tangent', 'ken'].includes(mode) || eqModes.includes(mode))) {
             backBtn.innerHTML = `<i class="ph-bold ph-arrow-left"></i> Folders`;
             backBtn.onclick = () => {
                 document.getElementById('localSearch').value = '';
@@ -2182,6 +2494,8 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         
         currentLocalList = list;
         currentLocalMode = mode;
+        window._currentFilterKey = filterKey;
+        window._currentFilterValue = filterValue;
         
         document.getElementById('localSearchWrapper').style.display = 'block';
         document.getElementById('localSearch').value = '';
@@ -2252,18 +2566,34 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
                     `;
                 });
                 return;
+            } else if (['pan', 'blanket', 'washer', 'dryer', 'sterilizer', 'heatsealer'].includes(mode)) {
+                const hospitals = [...new Set(list.map(item => item.Hospital || 'Unknown Hospital'))].sort();
+                hospitals.forEach(hosp => {
+                    const count = list.filter(item => (item.Hospital || 'Unknown Hospital') === hosp).length;
+                    content.innerHTML += `
+                        <div class="drive-folder" style="border-color:var(--success)" onclick="openMode('${mode}', 'Hospital', '${hosp}')">
+                            <i class="ph-fill ph-hospital drive-icon" style="color:var(--success)"></i>
+                            <div class="drive-lbl">
+                                ${hosp}
+                                <div class="expiry-badge" style="background:var(--bg); color:var(--text-muted); border:1px solid #e2e8f0;">${count} Units</div>
+                            </div>
+                            <i class="ph-bold ph-caret-right" style="color:#cbd5e1"></i>
+                        </div>
+                    `;
+                });
+                return;
             }
         }
 
         list.forEach((item, idx) => {
             let t = item['Error Code / Fault Name'] || item.PartID || item.Code || item['Error Code'] || item['Unit S/N'] || 'Unknown';
             let s = item['Alarm Description / Details'] || item.Description || item.Error || item['Display / Message'] || item.Location || item['Alarm Description'] || '';
-        const isPart = (mode === 'parts' || mode === 'out' || mode === 'pan' || mode === 'inv601');
+        const isPart = (mode === 'parts' || mode === 'out' || mode === 'pan' || mode === 'inv601' || ['blanket','washer','dryer','sterilizer','heatsealer'].includes(mode));
             if (isPart) {
                 const card = document.createElement('div');
                 card.className = 'data-card';
                 let subtitle = s;
-                if (mode === 'pan') {
+                if (mode === 'pan' || ['blanket','washer','dryer','sterilizer','heatsealer'].includes(mode)) {
                     subtitle = [item.Hospital, item.Block, item.Ward].filter(Boolean).join(' › ');
                 } else if (mode === 'inv601' || mode === 'parts' || mode === 'out') {
                     const stockNum = parseInt(item.Stock) || 0;
@@ -2273,9 +2603,27 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
                     subtitle = (item.Location || '') + stockBadge;
                     t = (item.PartID || '') + ' — ' + (item.Description || '');
                 }
-                card.innerHTML = `<div class="data-title">${t}</div><div class="data-sub">${subtitle}</div><div class="hold-ring"><svg viewBox="0 0 36 36"><circle class="ring-track" cx="18" cy="18" r="15.9"/><circle class="ring-fill" cx="18" cy="18" r="15.9"/></svg></div>`;
-                attachLongPress(card, item);
+
+                // Card body
+                var body = document.createElement('div');
+                body.className = 'data-card-body';
+                body.innerHTML = '<div class="data-title">' + t + '</div><div class="data-sub">' + subtitle + '</div>';
+
+                card.appendChild(body);
+
+                // ── Use same long-press system as Pan/Equipment cards ──
+                (function(it, capturedMode, cardEl) {
+                    // Normal tap → show details
+                    cardEl.addEventListener('click', function() {
+                        if (Date.now() - (window._lastHoldFire || 0) < 400) return;
+                        showDetails(it, capturedMode);
+                    });
+                    // Long press → action sheet (Edit / Delete / Comment)
+                    attachLongPress(cardEl, it, capturedMode);
+                })(item, mode, card);
+
                 content.appendChild(card);
+
             } else {
                 content.innerHTML += `<div class="data-card" onclick='showDetails(${JSON.stringify(item).replace(/'/g, "&#39;")}, "${mode}")'><div class="data-title">${t}</div><div class="data-sub">${s}</div></div>`;
             }
@@ -2391,7 +2739,8 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         currentPartID = item.PartID || item.Code || item['Error Code'] || item['Unit S/N'] || item['Error Code / Fault Name'] || 'Unknown';
         const b = document.getElementById('modalBody');
         const isPart    = (type === 'parts' || type === 'out' || type === 'inv601');
-        const isErrCode = !isPart && type !== 'pan' && type !== 'inv601';
+        const isLocMode = ['pan','blanket','washer','dryer','sterilizer','heatsealer'].includes(type);
+        const isErrCode = !isPart && !isLocMode && type !== 'inv601';
 
 
         let html = "";
@@ -2423,11 +2772,16 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
 
         // ── Read-only detail rows ──
         Object.entries(item).forEach(([k, v]) => {
-            if (v !== undefined && v !== "") {
-                html += `<div class="detail-row"><div class="detail-lbl">${k}</div><div class="detail-val">${v}</div></div>`;
+            if (v !== undefined && v !== "" && k !== "_baseID") {
+                if (k === 'Comments' || k === 'Notes') {
+                    html += `<div class="detail-row" onclick="viewCommentFullscreen(${JSON.stringify(v).replace(/"/g, '&quot;')}, '${k}')" style="cursor:pointer; background:#f8fafc;"><div class="detail-lbl">${k} <i class="ph-bold ph-arrows-out-simple" style="float:right; margin-top:2px; color:var(--primary);"></i></div><div class="detail-val" style="white-space:pre-wrap;">${v}</div></div>`;
+                } else {
+                    html += `<div class="detail-row"><div class="detail-lbl">${k}</div><div class="detail-val">${v}</div></div>`;
+                }
             }
         });
 
+        // ── Task / Order buttons for parts only (Edit removed) ──
         if (isPart && type !== 'inv601') {
             html += `
                 <div style="display:flex; gap:10px; margin-top:20px;">
@@ -3746,104 +4100,44 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         "Stock": 7
     }
 ];
-    // Merge base with any user-added items from localStorage
+
+    // ── 601 Inventory edit/delete persistence ─────────────────────────
+    let inv601Edits = {};
+    let inv601Deleted = new Set();
+    let inv601Custom = [];
+    try { inv601Edits = JSON.parse(localStorage.getItem('mins_601_edits')) || {}; } catch(e) {}
+    try { inv601Deleted = new Set(JSON.parse(localStorage.getItem('mins_601_deleted')) || []); } catch(e) {}
+    try { inv601Custom = JSON.parse(localStorage.getItem('mins_601_custom')) || []; } catch(e) {}
+
+    function saveInv601Overrides() {
+        try {
+            localStorage.setItem('mins_601_edits', JSON.stringify(inv601Edits));
+            localStorage.setItem('mins_601_deleted', JSON.stringify([...inv601Deleted]));
+            localStorage.setItem('mins_601_custom', JSON.stringify(inv601Custom));
+        } catch(e) {}
+    }
+
+    // Apply 601 Overrides
     (function(){
-        var extras = [];
-        try { extras = JSON.parse(localStorage.getItem('mins_601_inv')) || []; } catch(e) {}
         window._inv601Data = window._inv601Base.slice();
-        extras.forEach(function(e){
-            if (!window._inv601Data.find(function(b){ return b.PartID===e.PartID && b.Location===e.Location; }))
-                window._inv601Data.push(e);
+        // add custom
+        inv601Custom.forEach(c => window._inv601Data.push(c));
+        // apply edits
+        window._inv601Data.forEach(p => {
+            const key = p.PartID + '::' + p.Location;
+            if (inv601Edits[key]) {
+                p.PartID = inv601Edits[key].PartID;
+                p.Description = inv601Edits[key].Description;
+                p.Location = inv601Edits[key].Location;
+                p.Stock = inv601Edits[key].Stock;
+            }
         });
+        // remove deleted
+        window._inv601Data = window._inv601Data.filter(p => !inv601Deleted.has(p.PartID + '::' + p.Location));
     })();
 
-    function saveInv601() {
-        // Only persist user-added items (not base data)
-        var extras = window._inv601Data.filter(function(item){
-            return !window._inv601Base.find(function(b){ return b.PartID===item.PartID && b.Location===item.Location; });
-        });
-        try { localStorage.setItem('mins_601_inv', JSON.stringify(extras)); } catch(e) {}
-        document.getElementById('b-inv601').innerText = window._inv601Data.length || 0;
-    }
-
-    function addNewInv601() {
-        // Re-use pan edit modal but wired for inv601
-        const modal = document.getElementById('editPanModal');
-        modal.querySelector('h3').innerHTML = '<i class="ph-fill ph-warehouse" style="color:#6366f1;"></i> Add 601 Inventory Item';
-        document.getElementById('editPanSN').value    = '';
-        document.getElementById('editPanLoc').value   = '';
-        document.getElementById('editPanBlock').value = '';
-        document.getElementById('editPanDesc').value  = '';
-        document.getElementById('editPanLvl').value   = '';
-        document.getElementById('editPanRoom').value  = '';
-        document.getElementById('editPanComments').value = '';
-        modal.dataset.inv601Mode = 'add';
-        modal.classList.add('active');
-    }
-
-    function openInv601EditModal(item) {
-        const modal = document.getElementById('editPanModal');
-        modal.querySelector('h3').innerHTML = '<i class="ph-fill ph-warehouse" style="color:#6366f1;"></i> Edit 601 Inventory Item';
-        document.getElementById('editPanSN').value    = item['Unit S/N']  || '';
-        document.getElementById('editPanLoc').value   = item['Location']  || '';
-        document.getElementById('editPanBlock').value = item['Block']     || '';
-        document.getElementById('editPanDesc').value  = item['Description/Ward'] || '';
-        document.getElementById('editPanLvl').value   = item['Level']     || '';
-        document.getElementById('editPanRoom').value  = item['Room']      || '';
-        document.getElementById('editPanComments').value = item['Comments'] || '';
-        modal.dataset.inv601Mode  = 'edit';
-        modal.dataset.inv601Key   = item['Unit S/N'] || '';
-        modal.classList.add('active');
-    }
-
-    // Override savePanEdit to handle both pan and inv601
-    const _origSavePanEdit = window.savePanEdit;
-    window.savePanEdit = function() {
-        const modal = document.getElementById('editPanModal');
-        if (!modal.dataset.inv601Mode) { _origSavePanEdit && _origSavePanEdit(); return; }
-
-        const newItem = {
-            'Unit S/N':         document.getElementById('editPanSN').value.trim(),
-            'Location':         document.getElementById('editPanLoc').value.trim(),
-            'Block':            document.getElementById('editPanBlock').value.trim(),
-            'Description/Ward': document.getElementById('editPanDesc').value.trim(),
-            'Level':            document.getElementById('editPanLvl').value.trim(),
-            'Room':             document.getElementById('editPanRoom').value.trim(),
-            'Comments':         document.getElementById('editPanComments').value.trim()
-        };
-        if (!newItem['Unit S/N']) { alert('Unit S/N is required'); return; }
-
-        if (modal.dataset.inv601Mode === 'add') {
-            window._inv601Data.push(newItem);
-        } else {
-            const idx = window._inv601Data.findIndex(x => x['Unit S/N'] === modal.dataset.inv601Key);
-            if (idx !== -1) window._inv601Data[idx] = newItem;
-        }
-
-        delete modal.dataset.inv601Mode;
-        delete modal.dataset.inv601Key;
-        saveInv601();
-        modal.classList.remove('active');
-
-        if (activeMode === 'inv601') openMode('inv601');
-    };
-
-    // Override confirmDeletePan to handle inv601 too
-    const _origConfirmDeletePan = window.confirmDeletePan;
-    window.confirmDeletePan = function(item, cardEl) {
-        if (activeMode !== 'inv601') { _origConfirmDeletePan && _origConfirmDeletePan(item, cardEl); return; }
-        if (!confirm('Delete this 601 Inventory item?')) return;
-        window._inv601Data = window._inv601Data.filter(x => x['Unit S/N'] !== item['Unit S/N']);
-        saveInv601();
-        if (cardEl) cardEl.remove();
-        openMode('inv601');
-    };
-
-    // Wire long-press action sheet for inv601: use the same action sheet but call inv601 handlers
-    const _origHandleAction = window.handleActionSheet;
-
-
     
+
     // ══════════════════════════════════════════════════════════════
     // DIAGNOSTIC SUBFOLDER SYSTEM (IndexedDB for PDFs, localStorage for metadata)
     // ══════════════════════════════════════════════════════════════
@@ -3923,7 +4217,7 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
 
     // ── Render subfolder tiles into the top of secContent ─────────
     function renderDiagFolderTiles(mode) {
-        const existing = document.getElementById('diagTilesSection');
+        var existing = document.getElementById('diagTilesSection');
         if (existing) existing.remove();
         const folders = getDiagFolders(mode);
         const sec = document.createElement('div');
@@ -4046,6 +4340,7 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
                 const lbl = document.getElementById('diagPdfHdrLbl');
                 if (lbl) lbl.textContent = 'Documents (' + results.length + ')';
                 const list = document.getElementById('diagPdfList');
+        if (!list) return;
                 if (!list) return;
                 if (results.length === 0) {
                     list.innerHTML = `<div style="text-align:center;padding:20px;color:#94a3b8;font-size:0.85rem;background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:12px;">
@@ -4475,24 +4770,133 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         var day  = Math.floor((now - start) / 864e5);
         var v    = verses[day % verses.length];
 
-        document.getElementById('dailyVerseText').textContent = '\u201c' + v.t + '\u201d';
-        document.getElementById('dailyVerseRef').textContent  = '\u2014 ' + v.r + ' (Recovery Version)';
+        var verseTextEl = document.getElementById('dailyVerseText');
+        var verseRefEl = document.getElementById('dailyVerseRef');
+        if (verseTextEl) verseTextEl.textContent = '\u201c' + v.t + '\u201d';
+        if (verseRefEl) verseRefEl.textContent  = '\u2014 ' + v.r + ' (Recovery Version)';
     })();
 
-        // ── Long-press (3 sec hold) logic ────────────────────────────────
-    let editTarget = null;
-    let actionTarget = null;
-    let actionRowEl  = null;
-    let actionMode   = '';
-    const HOLD_MS = 3000;
+    
 
-    function attachLongPress(cardEl, item) {
+    // ── Header stats counters (header stats removed in Rev 3.5.0) ─
+    function updateHeaderStats() { /* stats bar removed — no-op */ }
+    setTimeout(updateHeaderStats, 200);
+
+    // ── Performance: Debounced search ─────────────────────────────
+    var _searchTimer = null;
+    function debounceSearch() {
+        if (_searchTimer) clearTimeout(_searchTimer);
+        _searchTimer = setTimeout(handleGlobalSearch, 150);
+    }
+
+    var _localSearchTimer = null;
+    function debounceLocalSearch() {
+        if (_localSearchTimer) clearTimeout(_localSearchTimer);
+        _localSearchTimer = setTimeout(handleLocalSearch, 120);
+    }
+
+    // ── Long-press (3 sec hold) logic ────────────────────────────────
+    let editTarget = null;
+
+    // ── Fullscreen Comment Editor ───────────────────────────────────
+    let _commentEditItem = null;
+    let _commentEditMode = null;
+
+    function _commentStorageKey(item, mode) {
+        if (['pan','blanket','washer','dryer','sterilizer','heatsealer'].includes(mode)) {
+            return 'mins_comment_' + mode + '_' + (item['Unit S/N'] || '');
+        }
+        return 'mins_comment_part_' + (item.PartID || '') + '_' + (item.Location || '');
+    }
+
+    function openCommentEditor() {
+        document.getElementById('partActionSheet').classList.remove('active');
+        if (!_actionTarget) return;
+        _commentEditItem = _actionTarget;
+        _commentEditMode = _actionMode;
+        const title = _actionTarget.PartID
+            ? (_actionTarget.PartID + ' — ' + (_actionTarget.Description || ''))
+            : ((_actionTarget['Unit S/N'] || '') + ' — ' + (_actionTarget.Hospital || ''));
+        document.getElementById('commentEditorSubtitle').textContent = title;
+        const key = _commentStorageKey(_actionTarget, _actionMode);
+        const saved = localStorage.getItem(key);
+        document.getElementById('commentEditorArea').value = saved !== null ? saved : (_actionTarget.Comments || _actionTarget.Notes || '');
+        document.getElementById('commentEditorArea').readOnly = false;
+        const saveBtn = document.querySelector('#commentEditorModal button[onclick="saveCommentEdit()"]');
+        if (saveBtn) saveBtn.style.display = 'flex';
+        const hintEl = document.querySelector('#commentEditorModal div:nth-child(5)');
+        if (hintEl) { hintEl.style.display = 'block'; hintEl.textContent = 'Hold and edit below - your comment is auto-saved per record.'; }
+        const modal = document.getElementById('commentEditorModal');
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('commentEditorArea').focus(), 200);
+    }
+    
+    function viewCommentFullscreen(text, title) {
+        document.getElementById('commentEditorSubtitle').textContent = title || 'Comments';
+        document.getElementById('commentEditorArea').value = text || '';
+        document.getElementById('commentEditorArea').readOnly = true;
+        const saveBtn = document.querySelector('#commentEditorModal button[onclick="saveCommentEdit()"]');
+        if (saveBtn) saveBtn.style.display = 'none';
+        const hintEl = document.querySelector('#commentEditorModal div:nth-child(5)');
+        if (hintEl) hintEl.style.display = 'none';
+        document.getElementById('commentEditorModal').style.display = 'flex';
+    }
+
+    window._inlineCommentCallback = null;
+    function openFullscreenFromEdit() {
+        document.getElementById('commentEditorSubtitle').textContent = 'Edit Comments';
+        document.getElementById('commentEditorArea').value = document.getElementById('pan-comments').value;
+        document.getElementById('commentEditorArea').readOnly = false;
+        const saveBtn = document.querySelector('#commentEditorModal button[onclick="saveCommentEdit()"]');
+        if (saveBtn) saveBtn.style.display = 'flex';
+        const hintEl = document.querySelector('#commentEditorModal div:nth-child(5)');
+        if (hintEl) { hintEl.style.display = 'block'; hintEl.textContent = 'Notes taken here will be copied back to the edit form.'; }
+        window._inlineCommentCallback = function(text) {
+            document.getElementById('pan-comments').value = text;
+        };
+        document.getElementById('commentEditorModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('commentEditorArea').focus(), 200);
+    }
+
+    function closeCommentEditor() {
+        document.getElementById('commentEditorModal').style.display = 'none';
+        _commentEditItem = null;
+        _commentEditMode = null;
+        window._inlineCommentCallback = null;
+    }
+
+    function saveCommentEdit() {
+        const text = document.getElementById('commentEditorArea').value;
+        if (window._inlineCommentCallback) {
+            window._inlineCommentCallback(text);
+            window._inlineCommentCallback = null;
+        } else {
+            if (!_commentEditItem) { closeCommentEditor(); return; }
+            const key = _commentStorageKey(_commentEditItem, _commentEditMode);
+            if (text.trim()) { localStorage.setItem(key, text); } else { localStorage.removeItem(key); }
+        }
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 24px;border-radius:30px;font-size:0.85rem;font-weight:700;font-family:Inter,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:10000;display:flex;align-items:center;gap:8px;white-space:nowrap;';
+        toast.innerHTML = '<i class="ph-fill ph-check-circle" style="color:#34d399;font-size:1.1rem;"></i> Comment saved';
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.remove(); closeCommentEditor(); }, 1200);
+    }
+
+
+        function attachLongPress(cardEl, item, mode) {
         let holdTimer = null;
         let holdStarted = 0;
         let startX = 0, startY = 0;
+        let lastTouchTime = 0;
         const ring = cardEl.querySelector('.ring-fill');
 
+        // Prevent native context menu
+        cardEl.addEventListener('contextmenu', function(e) { 
+            e.preventDefault(); 
+        });
+
         function startHold(x, y) {
+            if (holdTimer) return;
             holdStarted = Date.now();
             startX = x; startY = y;
             cardEl.classList.add('holding');
@@ -4507,59 +4911,208 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
             holdTimer = setTimeout(() => {
                 holdTimer = null;
                 cardEl.classList.remove('holding');
+                window._lastHoldFire = Date.now();
                 if (navigator.vibrate) navigator.vibrate(40);
-                openPartAction(item, cardEl);
+                openPartAction(item, cardEl, mode);
             }, HOLD_MS);
         }
 
-        function cancelHold(isTap) {
-            const wasHolding = holdTimer !== null;
-            clearTimeout(holdTimer);
-            holdTimer = null;
+        function cancelHold() {
+            if (holdTimer !== null) {
+                clearTimeout(holdTimer);
+                holdTimer = null;
+            }
             cardEl.classList.remove('holding');
             if (ring) {
                 ring.style.transition = 'none';
                 ring.style.strokeDashoffset = '100';
             }
-            // Short tap (< 300ms) → open detail view
-            if (isTap && wasHolding && (Date.now() - holdStarted) < 300) {
-                showDetails(item, currentLocalMode);
-            }
+            // Note: We removed the showDetails call from here because 
+            // the card's native 'click' handler manages normal taps much more reliably.
         }
 
-        // Touch
+        function onMove(x, y) {
+            if (!holdTimer) return;
+            if (Math.abs(x - startX) > 20 || Math.abs(y - startY) > 20) cancelHold();
+        }
+
+        // ── Touch events ──
         cardEl.addEventListener('touchstart', e => {
-            startHold(e.touches[0].clientX, e.touches[0].clientY);
+            lastTouchTime = Date.now();
+            if (e.touches.length === 1) {
+                startHold(e.touches[0].clientX, e.touches[0].clientY);
+            }
         }, { passive: true });
         cardEl.addEventListener('touchmove', e => {
-            const dx = e.touches[0].clientX - startX;
-            const dy = e.touches[0].clientY - startY;
-            if (Math.abs(dx) > 10 || Math.abs(dy) > 10) cancelHold(false);
+            lastTouchTime = Date.now();
+            if (e.touches.length === 1) {
+                onMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
         }, { passive: true });
-        cardEl.addEventListener('touchend',   () => cancelHold(true));
-        cardEl.addEventListener('touchcancel', () => cancelHold(false));
-
-        // Mouse (desktop fallback)
-        cardEl.addEventListener('mousedown', e => startHold(e.clientX, e.clientY));
-        cardEl.addEventListener('mousemove', e => {
-            if (!holdTimer) return;
-            const dx = e.clientX - startX, dy = e.clientY - startY;
-            if (Math.abs(dx) > 10 || Math.abs(dy) > 10) cancelHold(false);
+        cardEl.addEventListener('touchend', () => {
+            lastTouchTime = Date.now();
+            cancelHold();
         });
-        cardEl.addEventListener('mouseup',    () => cancelHold(true));
-        cardEl.addEventListener('mouseleave', () => cancelHold(false));
+        cardEl.addEventListener('touchcancel', () => {
+            lastTouchTime = Date.now();
+            cancelHold();
+        });
+
+        // ── Mouse events (ignore if touch was recent) ──
+        cardEl.addEventListener('mousedown', e => {
+            if (Date.now() - lastTouchTime < 1000) return;
+            if (e.button !== 0) return; // Only left click
+            startHold(e.clientX, e.clientY);
+        });
+        cardEl.addEventListener('mousemove', e => {
+            if (Date.now() - lastTouchTime < 1000) return;
+            onMove(e.clientX, e.clientY);
+        });
+        cardEl.addEventListener('mouseup', e => {
+            if (Date.now() - lastTouchTime < 1000) return;
+            cancelHold();
+        });
+        cardEl.addEventListener('mouseleave', e => {
+            if (Date.now() - lastTouchTime < 1000) return;
+            cancelHold();
+        });
     }
 
-    function openPartAction(item, cardEl) {
-        actionTarget = item;
-        actionRowEl  = cardEl;
-        actionMode   = currentLocalMode;
-        const label = item.PartID
-            ? `${item.PartID} — ${item.Description}`
-            : `${item['Unit S/N']} — ${item.Hospital}`;
-        document.getElementById('partActionTitle').textContent = label;
-        document.getElementById('partActionSheet').classList.add('active');
+    function openPartAction(item, cardEl, mode) {
+        try { _actionTarget = item; _actionRowEl = cardEl; _actionMode = mode || currentLocalMode; } catch(e) {}
+        var capturedMode = mode || currentLocalMode;
+
+        var eqModes = ['blanket','washer','dryer','sterilizer','heatsealer','pan'];
+        var isPart  = (capturedMode === 'parts' || capturedMode === 'out' || capturedMode === 'inv601');
+
+        document.getElementById('detailModal').classList.remove('active');
+
+        if (eqModes.includes(capturedMode)) {
+            // pan + all equipment → show action sheet
+            var titleEl = document.getElementById('partActionTitle');
+            if (titleEl) titleEl.textContent = (item['Unit S/N'] || '') + (item.Hospital ? ' — ' + item.Hospital : '');
+            document.getElementById('partActionSheet').classList.add('active');
+        } else if (isPart) {
+            // 602 / 601 / out → show action sheet with Edit Part label
+            var titleEl = document.getElementById('partActionTitle');
+            if (titleEl) titleEl.textContent = (item.PartID || '') + (item.Description ? ' — ' + item.Description : '');
+            document.getElementById('partActionSheet').classList.add('active');
+        }
     }
+
+    // ── Inline Edit Save (works inside #detailModal) ────────────────
+    function saveInlineEdit() {
+        if (!_actionTarget) return;
+        const isLoc = (_actionMode === 'pan' || ['blanket','washer','dryer','sterilizer','heatsealer'].includes(_actionMode));
+        const isPart = (_actionMode === 'parts' || _actionMode === 'out' || _actionMode === 'inv601');
+
+        if (isLoc) {
+            const newSN = document.getElementById('inline-sn').value.trim();
+            if (!newSN) { alert('Unit S/N is required.'); return; }
+            const entry = {
+                'Unit S/N': newSN,
+                Hospital:   document.getElementById('inline-hospital').value.trim(),
+                Block:      document.getElementById('inline-block').value.trim(),
+                Ward:       document.getElementById('inline-ward').value.trim(),
+                Level:      document.getElementById('inline-level').value.trim(),
+                Room:       document.getElementById('inline-room').value.trim(),
+                Comments:   document.getElementById('inline-comments').value.trim()
+            };
+            if (_actionMode === 'pan') {
+                const idx = db.pan.findIndex(p => p['Unit S/N'] === _actionTarget['Unit S/N']);
+                if (idx !== -1) db.pan[idx] = entry;
+                localStorage.setItem('mins_pan_edits', JSON.stringify(db.pan));
+                currentLocalList = db.pan;
+                renderLocalList(db.pan, 'pan', false);
+            } else {
+                const idx = (db[_actionMode] || []).findIndex(p => p['Unit S/N'] === _actionTarget['Unit S/N']);
+                if (idx !== -1) db[_actionMode][idx] = entry;
+                saveEqData(_actionMode);
+                currentLocalList = db[_actionMode];
+                renderLocalList(db[_actionMode], _actionMode, false);
+            }
+        } else if (isPart) {
+            const is601 = _actionMode === 'inv601';
+            const activeDB = is601 ? window._inv601Data : db.parts;
+            const newPID = document.getElementById('inline-partid').value.trim();
+            if (!newPID) { alert('Part ID is required.'); return; }
+            const idx = activeDB.findIndex(p => p.PartID === _actionTarget.PartID && p.Location === _actionTarget.Location);
+            if (idx !== -1) {
+                const oldKey = (_actionTarget.PartID || '') + '::' + (_actionTarget.Location || '');
+                activeDB[idx].PartID      = newPID;
+                activeDB[idx].Description = document.getElementById('inline-desc').value.trim();
+                activeDB[idx].Location    = document.getElementById('inline-loc').value.trim();
+                activeDB[idx].Stock       = document.getElementById('inline-stock').value.trim();
+                
+                const rec = activeDB[idx];
+                if (is601) {
+                    inv601Edits[oldKey] = { PartID: rec.PartID, Description: rec.Description, Location: rec.Location, Stock: rec.Stock };
+                    saveInv601Overrides();
+                } else {
+                    partsEdits[oldKey] = { PartID: rec.PartID, Description: rec.Description, Location: rec.Location, Stock: rec.Stock };
+                    savePartsOverrides();
+                }
+            }
+            currentLocalList = activeDB;
+            renderLocalList(activeDB, _actionMode, false);
+        }
+
+        // Close modal and show toast
+        closeModal({target: document.getElementById('detailModal')});
+        _actionTarget = null;
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 24px;border-radius:30px;font-size:0.85rem;font-weight:700;font-family:Inter,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:10000;display:flex;align-items:center;gap:8px;white-space:nowrap;';
+        toast.innerHTML = '<i class="ph-fill ph-check-circle" style="color:#34d399;font-size:1.1rem;"></i> Changes saved';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 1500);
+    }
+
+    function deleteInlineEdit() {
+        if (!_actionTarget) return;
+        const label = _actionTarget['Unit S/N'] || _actionTarget.PartID || 'this record';
+        if (!confirm('Delete "' + label + '"?\nThis cannot be undone.')) return;
+
+        const isLoc = (_actionMode === 'pan' || ['blanket','washer','dryer','sterilizer','heatsealer'].includes(_actionMode));
+        const isPart = (_actionMode === 'parts' || _actionMode === 'out' || _actionMode === 'inv601');
+
+        if (isLoc) {
+            if (_actionMode === 'pan') {
+                const idx = db.pan.findIndex(p => p['Unit S/N'] === _actionTarget['Unit S/N']);
+                if (idx !== -1) db.pan.splice(idx, 1);
+                localStorage.setItem('mins_pan_edits', JSON.stringify(db.pan));
+                currentLocalList = db.pan;
+                renderLocalList(db.pan, 'pan', false);
+            } else {
+                const sn = _actionTarget['Unit S/N'];
+                if (window._eqDeleted[_actionMode]) window._eqDeleted[_actionMode].add(sn);
+                const idx = (db[_actionMode] || []).findIndex(p => p['Unit S/N'] === sn);
+                if (idx !== -1) db[_actionMode].splice(idx, 1);
+                saveEqData(_actionMode);
+                currentLocalList = db[_actionMode];
+                renderLocalList(db[_actionMode], _actionMode, false);
+            }
+        } else if (isPart) {
+            const is601 = _actionMode === 'inv601';
+            const activeDB = is601 ? window._inv601Data : db.parts;
+            const idx = activeDB.findIndex(p => p.PartID === _actionTarget.PartID && p.Location === _actionTarget.Location);
+            if (idx !== -1) {
+                activeDB.splice(idx, 1);
+                if (is601) {
+                    inv601Deleted.add((_actionTarget.PartID || '') + '::' + (_actionTarget.Location || ''));
+                    saveInv601Overrides();
+                } else {
+                    partsDeleted.add((_actionTarget.PartID || '') + '::' + (_actionTarget.Location || ''));
+                    savePartsOverrides();
+                }
+            }
+            currentLocalList = activeDB;
+            renderLocalList(activeDB, _actionMode, false);
+        }
+
+        closeModal({target: document.getElementById('detailModal')});
+        _actionTarget = null;
+    }
+
 
     function closePartAction(e) {
         if (!e || e.target.id === 'partActionSheet') {
@@ -4568,24 +5121,92 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
     }
 
     function openEditFromAction() {
-        document.getElementById('partActionSheet').classList.remove('active');
-        if (!actionTarget) return;
-        if (actionMode === 'pan') {
-            if (activeMode === 'inv601') openInv601EditModal(actionTarget);
-            else openPanEditModal(actionTarget);
-        } else {
-            openEditModal(actionTarget);
-        }
+        try {
+            document.getElementById('partActionSheet').classList.remove('active');
+            if (!_actionTarget) return;
+            if (['blanket','washer','dryer','sterilizer','heatsealer','pan'].includes(_actionMode)) {
+                openEqEditModal(_actionTarget, _actionMode);
+            } else {
+                openEditModal(_actionTarget);
+            }
+        } catch(e) { alert("Error opening edit modal: " + e.message); }
     }
 
     function deleteFromAction() {
         document.getElementById('partActionSheet').classList.remove('active');
-        if (!actionTarget || !actionRowEl) return;
-        if (actionMode === 'pan') {
-            confirmDeletePan(actionTarget, actionRowEl);
+        if (!_actionTarget || !_actionRowEl) return;
+        if (['blanket','washer','dryer','sterilizer','heatsealer','pan'].includes(_actionMode)) {
+            confirmDeleteEq(_actionTarget, _actionRowEl, _actionMode);
         } else {
-            confirmDeletePart(actionTarget, actionRowEl);
+            confirmDeletePart(_actionTarget, _actionRowEl);
         }
+    }
+
+
+    // ══ Equipment Location CRUD (Blanket / Washer / Dryer / Sterilizer) ══
+    function openEqEditModal(item, mode) {
+        eqEditTarget = item || null;
+        eqEditMode   = mode;
+        document.getElementById('pan-sn').value       = item ? (item['Unit S/N'] || '') : '';
+        document.getElementById('pan-hospital').value = item ? (item.Hospital || '') : (window._currentFilterKey === 'Hospital' && window._currentFilterValue ? window._currentFilterValue : '');
+        document.getElementById('pan-block').value    = item ? (item.Block || '') : '';
+        document.getElementById('pan-ward').value     = item ? (item.Ward || '') : '';
+        document.getElementById('pan-level').value    = item ? (item.Level || '') : '';
+        document.getElementById('pan-room').value     = item ? (item.Room || '') : '';
+        document.getElementById('pan-comments').value = item ? (item.Comments || '') : '';
+        const titleEl = document.querySelector('#editPanModal h3');
+        if (titleEl) titleEl.innerHTML = '<i class="ph-fill ph-map-pin" style="color:var(--success);"></i> ' + (item ? 'Edit ' : 'Add New ') + (modeLabels[mode] || mode);
+        document.querySelector('#editPanModal .btn-primary').setAttribute('onclick', 'saveEqEdit()');
+        // Show delete button only when editing existing record
+        var delBtn = document.getElementById('deletePanBtn');
+        if (delBtn) delBtn.style.display = item ? 'flex' : 'none';
+        document.getElementById('editPanModal').classList.add('active');
+    }
+
+    function saveEqEdit() {
+        const mode = eqEditMode;
+        const newSN = document.getElementById('pan-sn').value.trim();
+        if (!newSN) { alert('Unit S/N is required.'); return; }
+        const entry = {
+            'Unit S/N': newSN,
+            Hospital:   document.getElementById('pan-hospital').value.trim(),
+            Block:      document.getElementById('pan-block').value.trim(),
+            Ward:       document.getElementById('pan-ward').value.trim(),
+            Level:      document.getElementById('pan-level').value.trim(),
+            Room:       document.getElementById('pan-room').value.trim(),
+            Comments:   document.getElementById('pan-comments').value.trim()
+        };
+        if (!eqEditTarget) {
+            // New record
+            if (!db[mode]) db[mode] = [];
+            db[mode].push(entry);
+        } else {
+            const idx = db[mode].findIndex(p => p['Unit S/N'] === eqEditTarget['Unit S/N']);
+            if (idx !== -1) db[mode][idx] = entry;
+        }
+        saveEqData(mode);
+        document.getElementById('editPanModal').classList.remove('active');
+        eqEditTarget = null;
+        eqEditMode   = null;
+        currentLocalList = db[mode];
+        renderLocalList(db[mode], mode, false);
+        const badgeEl = document.getElementById('b-' + mode);
+        if (badgeEl) badgeEl.innerText = (db[mode] || []).length;
+    }
+
+    function confirmDeleteEq(item, cardEl, mode) {
+        if (!confirm(`Delete "${item['Unit S/N']} at ${item.Hospital}"?\nThis cannot be undone.`)) return;
+        const sn = item['Unit S/N'];
+        if (window._eqDeleted[mode]) window._eqDeleted[mode].add(sn);
+        const idx = (db[mode] || []).findIndex(p => p['Unit S/N'] === sn);
+        if (idx !== -1) db[mode].splice(idx, 1);
+        saveEqData(mode);
+        cardEl.style.transition = 'max-height 0.3s ease, opacity 0.3s ease';
+        cardEl.style.maxHeight = cardEl.offsetHeight + 'px';
+        requestAnimationFrame(() => { cardEl.style.maxHeight = '0'; cardEl.style.opacity = '0'; });
+        setTimeout(() => cardEl.remove(), 320);
+        const badgeEl = document.getElementById('b-' + mode);
+        if (badgeEl) badgeEl.innerText = (db[mode] || []).length;
     }
 
     // ── Pan Location edit/delete handlers ─────────────────────────
@@ -4593,6 +5214,8 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
 
     function openPanEditModal(item) {
         panEditTarget = item;
+        eqEditMode = null;
+        eqEditTarget = null;
         document.getElementById('pan-sn').value       = item['Unit S/N'] || '';
         document.getElementById('pan-hospital').value = item.Hospital || '';
         document.getElementById('pan-block').value    = item.Block || '';
@@ -4600,17 +5223,50 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         document.getElementById('pan-level').value    = item.Level || '';
         document.getElementById('pan-room').value     = item.Room || '';
         document.getElementById('pan-comments').value = item.Comments || '';
+        const titleEl = document.querySelector('#editPanModal h3');
+        if (titleEl) titleEl.innerHTML = '<i class="ph-fill ph-map-pin" style="color:var(--success);"></i> Edit Pan Location';
+        document.querySelector('#editPanModal .btn-primary').setAttribute('onclick', 'savePanEdit()');
+        // Show delete button for existing records
+        var delBtn = document.getElementById('deletePanBtn');
+        if (delBtn) delBtn.style.display = 'flex';
         document.getElementById('editPanModal').classList.add('active');
     }
 
     function closePanEditModal(e) {
         if (!e || e.target.id === 'editPanModal') {
             document.getElementById('editPanModal').classList.remove('active');
-            panEditTarget = null;
+            var delBtn = document.getElementById('deletePanBtn');
+            if (delBtn) delBtn.style.display = 'none';
+            panEditTarget = null; eqEditTarget = null; eqEditMode = null;
         }
     }
 
+    // Delete from Pan/EQ edit modal — uses _actionTarget set by openPartAction
+    function deletePanOrEqFromModal() {
+        var item = eqEditTarget || panEditTarget || _actionTarget;
+        var mode = eqEditMode || 'pan';
+        if (!item) return;
+        var label = item['Unit S/N'] || 'this record';
+        if (!confirm('Delete "' + label + '"?\nThis cannot be undone.')) return;
+        document.getElementById('editPanModal').classList.remove('active');
+        var delBtn = document.getElementById('deletePanBtn');
+        if (delBtn) delBtn.style.display = 'none';
+
+        var sn = item['Unit S/N'];
+        if (window._eqDeleted[mode]) window._eqDeleted[mode].add(sn);
+        var idx = (db[mode] || []).findIndex(function(p){ return p['Unit S/N'] === sn; });
+        if (idx !== -1) db[mode].splice(idx, 1);
+        saveEqData(mode);
+        currentLocalList = db[mode];
+        renderLocalList(db[mode], mode, false);
+        var bEl = document.getElementById('b-' + mode);
+        if (bEl) bEl.innerText = (db[mode] || []).length;
+
+        panEditTarget = null; eqEditTarget = null; eqEditMode = null; _actionTarget = null;
+    }
+
     function savePanEdit() {
+        if (eqEditMode) { saveEqEdit(); return; }
         if (!panEditTarget) {
             // ── NEW PAN LOCATION ──
             const newSN = document.getElementById('pan-sn').value.trim();
@@ -4679,17 +5335,59 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         document.getElementById('edit-desc').value = item.Description || '';
         document.getElementById('edit-loc').value = item.Location || '';
         document.getElementById('edit-stock').value = item.Stock !== undefined ? item.Stock : '';
+        // Show delete button for existing records
+        var delBtn = document.getElementById('deletePartBtn');
+        if (delBtn) delBtn.style.display = item ? 'flex' : 'none';
         document.getElementById('editPartModal').classList.add('active');
     }
 
     function closeEditModal(e) {
         if (!e || e.target.id === 'editPartModal') {
             document.getElementById('editPartModal').classList.remove('active');
+            var delBtn = document.getElementById('deletePartBtn');
+            if (delBtn) delBtn.style.display = 'none';
             editTarget = null;
         }
     }
 
+    // Delete from parts edit modal
+    function deletePartFromModal() {
+        var item = editTarget || _actionTarget;
+        var mode = currentLocalMode;
+        if (!item) return;
+        var label = item.PartID || 'this record';
+        if (!confirm('Delete "' + label + ' — ' + (item.Description || '') + '"?\nThis cannot be undone.')) return;
+        document.getElementById('editPartModal').classList.remove('active');
+        var delBtn = document.getElementById('deletePartBtn');
+        if (delBtn) delBtn.style.display = 'none';
+        var is601 = (mode === 'inv601');
+        var activeDB = is601 ? window._inv601Data : db.parts;
+        var idx = activeDB.findIndex(function(p){ return p.PartID === item.PartID && p.Location === item.Location; });
+        if (idx !== -1) activeDB.splice(idx, 1);
+        if (is601) {
+            inv601Deleted.add((item.PartID || '') + '::' + (item.Location || ''));
+            saveInv601Overrides();
+        } else {
+            partsDeleted.add((item.PartID || '') + '::' + (item.Location || ''));
+            savePartsOverrides();
+        }
+        var list = (mode === 'out') ? db.parts.filter(function(p){ return !p.Stock || parseInt(p.Stock) === 0; }) : activeDB;
+        currentLocalList = list;
+        renderLocalList(list, mode, false);
+        if (!is601) {
+            document.getElementById('b-parts').innerText = db.parts.length;
+            document.getElementById('b-out').innerText = db.parts.filter(function(p){ return p.hasOwnProperty('Stock') && (p.Stock === '' || p.Stock === null || p.Stock === undefined || parseInt(p.Stock) === 0); }).length;
+        } else {
+            var bEl = document.getElementById('b-inv601');
+            if (bEl) bEl.innerText = window._inv601Data.length;
+        }
+        editTarget = null; _actionTarget = null;
+    }
+
     function savePartEdit() {
+        const is601 = currentLocalMode === 'inv601';
+        const activeDB = is601 ? window._inv601Data : db.parts;
+
         if (!editTarget) {
             // ── NEW PART ──
             const newPartID = document.getElementById('edit-partid').value.trim();
@@ -4700,52 +5398,99 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
                 Location:    document.getElementById('edit-loc').value.trim(),
                 Stock:       parseInt(document.getElementById('edit-stock').value) || 0
             };
-            db.parts.push(newPart);
-            customParts.push(newPart);
-            saveCustomParts();
+            newPart._baseID = newPartID;
+            
+            activeDB.push(newPart);
+            
+            if (is601) {
+                inv601Custom.push(newPart);
+                saveInv601Overrides();
+                const bEl = document.getElementById('b-inv601');
+                if (bEl) bEl.innerText = window._inv601Data.length;
+            } else {
+                customParts.push(newPart);
+                saveCustomParts();
+                document.getElementById('b-parts').innerText = db.parts.length;
+                document.getElementById('b-out').innerText = db.parts.filter(p => p.hasOwnProperty("Stock") && (p.Stock === "" || p.Stock === null || p.Stock === undefined || parseInt(p.Stock) === 0)).length;
+            }
+
             document.getElementById('editPartModal').classList.remove('active');
             // Restore modal title
-            document.getElementById('editPartModal').querySelector('h3').innerHTML =
-                '<i class="ph-fill ph-pencil-simple" style="color:var(--primary);"></i> Edit Part';
-            const list = db.parts;
+            const titleReset = document.getElementById('editPartModalTitle') || document.querySelector('#editPartModal h3');
+            if (titleReset) titleReset.innerHTML = '<i class="ph-fill ph-pencil-simple" style="color:var(--primary);"></i> Edit Part';
+            
+            const list = activeDB;
             currentLocalList = list;
-            renderLocalList(list, 'parts', false);
-            document.getElementById('b-parts').innerText = db.parts.length;
-            document.getElementById('b-out').innerText = db.parts.filter(p => !p.Stock || parseInt(p.Stock) === 0).length;
+            renderLocalList(list, currentLocalMode, false);
             return;
         }
+
         // ── EDIT EXISTING ──
         const newPartID = document.getElementById('edit-partid').value.trim();
         const newDesc   = document.getElementById('edit-desc').value.trim();
         const newLoc    = document.getElementById('edit-loc').value.trim();
         const newStock  = parseInt(document.getElementById('edit-stock').value) || 0;
 
-        const idx = db.parts.findIndex(p => p.PartID === editTarget.PartID);
+        let idx = activeDB.findIndex(p => p.PartID === editTarget.PartID && p.Location === editTarget.Location);
+        
+        // Fallback: Try object reference if properties fail
+        if (idx === -1) idx = activeDB.indexOf(editTarget);
+
+        const oldKey = (editTarget.PartID || '') + '::' + (editTarget.Location || '');
+        
         if (idx !== -1) {
-            db.parts[idx].PartID = newPartID;
-            db.parts[idx].Description = newDesc;
-            db.parts[idx].Location = newLoc;
-            db.parts[idx].Stock = newStock;
-            partsEdits[newPartID] = { PartID: newPartID, Description: newDesc, Location: newLoc, Stock: newStock };
-            savePartsOverrides();
+            activeDB[idx].PartID = newPartID;
+            activeDB[idx].Description = newDesc;
+            activeDB[idx].Location = newLoc;
+            activeDB[idx].Stock = newStock;
+        } else {
+            // Unlikely fallback, mutate directly
+            editTarget.PartID = newPartID;
+            editTarget.Description = newDesc;
+            editTarget.Location = newLoc;
+            editTarget.Stock = newStock;
         }
+            
+            if (is601) {
+                inv601Edits[oldKey] = { PartID: newPartID, Description: newDesc, Location: newLoc, Stock: newStock };
+                saveInv601Overrides();
+            } else {
+                partsEdits[oldKey] = { PartID: newPartID, Description: newDesc, Location: newLoc, Stock: newStock };
+                savePartsOverrides();
+            }
 
         document.getElementById('editPartModal').classList.remove('active');
         editTarget = null;
 
-        const list = (currentLocalMode === 'out') ? db.parts.filter(p => !p.Stock || parseInt(p.Stock) === 0) : db[currentLocalMode];
+        const list = (currentLocalMode === 'out') ? db.parts.filter(p => !p.Stock || parseInt(p.Stock) === 0) : activeDB;
         currentLocalList = list;
         renderLocalList(list, currentLocalMode, false);
-        document.getElementById('b-parts').innerText = db.parts.length;
-        document.getElementById('b-out').innerText = db.parts.filter(p => !p.Stock || parseInt(p.Stock) === 0).length;
+        
+        if (!is601) {
+            document.getElementById('b-parts').innerText = db.parts.length;
+            document.getElementById('b-out').innerText = db.parts.filter(p => p.hasOwnProperty("Stock") && (p.Stock === "" || p.Stock === null || p.Stock === undefined || parseInt(p.Stock) === 0)).length;
+        } else {
+            const bEl = document.getElementById('b-inv601');
+            if (bEl) bEl.innerText = window._inv601Data.length;
+        }
     }
 
     function confirmDeletePart(item, rowEl) {
         if (!confirm(`Delete part "${item.PartID} — ${item.Description}"?\nThis cannot be undone.`)) return;
-        partsDeleted.add(item.PartID);
-        const idx = db.parts.findIndex(p => p.PartID === item.PartID);
-        if (idx !== -1) db.parts.splice(idx, 1);
-        savePartsOverrides();
+        
+        const is601 = currentLocalMode === 'inv601';
+        const activeDB = is601 ? window._inv601Data : db.parts;
+        
+        const idx = activeDB.findIndex(p => p.PartID === item.PartID && p.Location === item.Location);
+        if (idx !== -1) activeDB.splice(idx, 1);
+        
+        if (is601) {
+            inv601Deleted.add((item.PartID || '') + '::' + (item.Location || ''));
+            saveInv601Overrides();
+        } else {
+            partsDeleted.add((item.PartID || '') + '::' + (item.Location || ''));
+            savePartsOverrides();
+        }
 
         // Animate row out
         rowEl.style.transition = 'max-height 0.3s ease, opacity 0.3s ease';
@@ -4753,8 +5498,13 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         requestAnimationFrame(() => { rowEl.style.maxHeight = '0'; rowEl.style.opacity = '0'; });
         setTimeout(() => rowEl.remove(), 320);
 
-        document.getElementById('b-parts').innerText = db.parts.length;
-        document.getElementById('b-out').innerText = db.parts.filter(p => !p.Stock || parseInt(p.Stock) === 0).length;
+        if (!is601) {
+            document.getElementById('b-parts').innerText = db.parts.length;
+            document.getElementById('b-out').innerText = db.parts.filter(p => p.hasOwnProperty("Stock") && (p.Stock === "" || p.Stock === null || p.Stock === undefined || parseInt(p.Stock) === 0)).length;
+        } else {
+            const bEl = document.getElementById('b-inv601');
+            if (bEl) bEl.innerText = window._inv601Data.length;
+        }
     }
 
     function closeSecondary() {
@@ -4771,27 +5521,34 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
 
     // ── Add New handlers ────────────────────────────────────────────
     function handleAddNew() {
-        if (currentLocalMode === 'pan') {
-            if (activeMode === 'inv601') addNewInv601();
-            else addNewPan();
+        var m = currentLocalMode || activeMode;
+        var eqModes = ['blanket','washer','dryer','sterilizer','heatsealer','pan'];
+        if (eqModes.includes(m)) {
+            // all equipment use the same openEqEditModal
+            openEqEditModal(null, m);
         } else {
+            // parts, inv601, out → parts edit modal
             addNewPart();
         }
     }
 
     function addNewPart() {
-        editTarget = null; // null = new mode
+        editTarget = null;
         document.getElementById('edit-partid').value = '';
         document.getElementById('edit-desc').value   = '';
         document.getElementById('edit-loc').value    = '';
         document.getElementById('edit-stock').value  = '';
-        document.getElementById('editPartModal').querySelector('h3').innerHTML =
-            '<i class="ph-fill ph-plus-circle" style="color:var(--success);"></i> Add New Part';
+        const titleEl = document.getElementById('editPartModalTitle') || document.querySelector('#editPartModal h3');
+        if (titleEl) titleEl.innerHTML = '<i class="ph-fill ph-plus-circle" style="color:var(--success);"></i> Add New Part';
+        // Hide delete button for new records
+        var delBtn = document.getElementById('deletePartBtn');
+        if (delBtn) delBtn.style.display = 'none';
         document.getElementById('editPartModal').classList.add('active');
     }
 
     function addNewPan() {
         panEditTarget = null;
+        eqEditMode = null;
         document.getElementById('pan-sn').value       = '';
         document.getElementById('pan-hospital').value = '';
         document.getElementById('pan-block').value    = '';
@@ -4801,6 +5558,10 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         document.getElementById('pan-comments').value = '';
         document.getElementById('editPanModal').querySelector('h3').innerHTML =
             '<i class="ph-fill ph-plus-circle" style="color:var(--success);"></i> Add New Location';
+        document.querySelector('#editPanModal .btn-primary').setAttribute('onclick', 'savePanEdit()');
+        // Hide delete button for new records
+        var delBtn = document.getElementById('deletePanBtn');
+        if (delBtn) delBtn.style.display = 'none';
         document.getElementById('editPanModal').classList.add('active');
     }
 
@@ -5259,8 +6020,11 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
         document.getElementById('fRes').innerText = (!isNaN(rate) && !isNaN(time)) ? (rate * time).toFixed(1) : '--';
     }
     function doTimeCalc() {
-        const t1 = document.getElementById('time1').value;
-        const t2 = document.getElementById('time2').value;
+        var el1 = document.getElementById('time1');
+        var el2 = document.getElementById('time2');
+        if (!el1 || !el2) return;
+        const t1 = el1.value;
+        const t2 = el2.value;
         if(t1 && t2) {
             let [h1, m1] = t1.split(':').map(Number);
             let [h2, m2] = t2.split(':').map(Number);
@@ -5270,9 +6034,9 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
             let diff = (d2 - d1) / 1000 / 60; // minutes
             let hours = Math.floor(diff / 60);
             let mins = diff % 60;
-            document.getElementById('timeRes').innerText = `${hours}h ${mins}m`;
+            var resEl = document.getElementById('timeRes'); if(resEl) resEl.innerText = `${hours}h ${mins}m`;
         } else {
-            document.getElementById('timeRes').innerText = '--';
+            var resEl2 = document.getElementById('timeRes'); if(resEl2) resEl2.innerText = '--';
         }
     }
     
@@ -5858,7 +6622,8 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
     }
 
     function saveDrive() {
-        localStorage.setItem('mins_master_drive', JSON.stringify(masterDrive));
+        try { localStorage.setItem('mins_master_drive', JSON.stringify(masterDrive)); }
+        catch(e) { console.warn('Storage full — saveDrive failed:', e); }
     }
 
     function viewFolder(id) {
@@ -6123,5 +6888,24 @@ window.db = { parts: db_parts, bht: db_bht, gen5: db_gen5, tangent: db_tan, pan:
 
 
 
+
+<!-- ── Fullscreen Comment Editor ──────────────────────────────── -->
+<div id="commentEditorModal" style="display:none;position:fixed;inset:0;z-index:9999;background:#f8fafc;flex-direction:column;">
+    <div style="position:sticky;top:0;background:rgba(248,250,252,0.97);backdrop-filter:blur(12px);padding:14px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;z-index:10;">
+        <button onclick="closeCommentEditor()" style="background:none;border:none;color:#0284c7;font-weight:800;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;padding:0;"><i class="ph-bold ph-arrow-left"></i> Back</button>
+        <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;color:#1e293b;display:flex;align-items:center;gap:6px;"><i class="ph-fill ph-note-pencil" style="color:#6366f1;"></i> Comments</div>
+        <button onclick="saveCommentEdit()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;border-radius:20px;padding:8px 18px;font-weight:800;font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;"><i class="ph-bold ph-floppy-disk"></i> Save</button>
+    </div>
+    <div style="padding:12px 20px 0;font-size:0.8rem;color:#64748b;font-family:'Inter',sans-serif;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="commentEditorSubtitle"></div>
+    <div style="padding:0 20px;margin-top:8px;font-size:0.7rem;color:#94a3b8;font-family:'Inter',sans-serif;">Hold and edit below — your comment is auto-saved per record.</div>
+    <textarea id="commentEditorArea" placeholder="Type your comment here..." style="flex:1;width:100%;border:none;border-top:1px solid #e2e8f0;margin-top:12px;padding:16px 20px;font-size:1rem;font-family:'Inter',sans-serif;line-height:1.7;color:#1e293b;background:#ffffff;outline:none;resize:none;box-sizing:border-box;"></textarea>
+</div>
+
+
+
+
+    <!-- Part Action Sheet (hold menu) -->
+<!-- Edit Part Form -->
+<!-- Pan Location Edit Form -->
 </body>
 </html>
